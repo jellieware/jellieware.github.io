@@ -1,4 +1,7 @@
 
+
+
+
 <html>
 <link rel="icon" type="image/png" href="/fav/favicon-96x96.png" sizes="96x96" />
 <link rel="icon" type="image/svg+xml" href="/fav/favicon.svg" />
@@ -96,181 +99,642 @@ li {
 }
 </style>
 
-    <meta charset='utf-8' />
-<meta name="viewport" content="width=1200px" />
-<title>Jellyware&trade;</title>
-<style>
-* { box-sizing: border-box; }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Shader Animation</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #000;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+  <canvas id="canvas"></canvas>
 
-.timeline { position: relative; max-width: 1200px; margin: 0px auto; margin-top:20px; font-family:Verdana !important; }
+  <script id="fs" type="x-shader/x-fragment">
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision highp float;
+#endif
 
-.timeline::after { content: ""; position: absolute; width: 6px; background-color: white; top: 0px; bottom: 0px; left: 50%; margin-left: -3px; }
+uniform vec2 resolution;
+uniform float time;
+uniform vec4 mouse;
+uniform vec4 date;
+uniform int pointerCount;
+uniform vec3 pointers[10];
+float anim = 0.1;
 
-.container { padding: 10px 40px; position: relative; background-color: inherit; width: 50%; }
+//uniform vec3      resolution;           // viewport resolution (in pixels)
+uniform float     iTime;                 // shader playback time (in seconds)
+uniform float     iTimeDelta;            // render time (in seconds)
+uniform float     iFrameRate;            // shader frame rate
+uniform int       iFrame;                // shader playback frame
+uniform float     iChannelTime[4];       // channel playback time (in seconds)
+uniform vec3      iChannelResolution[4]; // channel resolution (in pixels)
+//uniform vec4      mouse;                // mouse pixel coords. xy: current (if MLB down), zw: click
+uniform sampler2D iChannel0, iChannel1, iChannel2, iChannel3;        // input channel. XX = 2D/Cube
+//uniform vec4      date;                 // (year, month, day, time in seconds)
+uniform float     iSampleRate;           // sound sample rate (i.e., 44100)
+uniform float iBlockOffset;
 
-.container::after { content: ""; position: absolute; width: 25px; height: 25px; right: -17px; background-color: white; border: 4px solid rgb(255, 159, 85); top: 15px; border-radius: 50%; z-index: 1; }
+//
+// Description : Array and textureless GLSL 2D/3D/4D simplex
+//							 noise functions.
+//			Author : Ian McEwan, Ashima Arts.
+//	Maintainer : ijm
+//		 Lastmod : 20110822 (ijm)
+//		 License : Copyright (C) 2011 Ashima Arts. All rights reserved.
+//							 Distributed under the MIT License. See LICENSE file.
+//							 https://github.com/ashima/webgl-noise
+//
 
-.left { left: 0px; }
+vec3 mod289(vec3 x) {
+	return x - floor(x * (1.0 / 289.0)) * 289.0;
+}
 
-.right { left: 50%; }
+vec4 mod289(vec4 x) {
+	return x - floor(x * (1.0 / 289.0)) * 289.0;
+}
 
-.left::before { content: " "; height: 0px; position: absolute; top: 22px; width: 0px; z-index: 1; right: 30px; border-style: solid; border-image: initial; border-width: 10px 0px 10px 10px; border-color: transparent transparent transparent white; }
+vec4 permute(vec4 x) {
+		 return mod289(((x*34.0)+1.0)*x);
+}
 
-.right::before { content: " "; height: 0px; position: absolute; top: 22px; width: 0px; z-index: 1; left: 30px; border-style: solid; border-image: initial; border-width: 10px 10px 10px 0px; border-color: transparent white transparent transparent; }
+vec4 taylorInvSqrt(vec4 r)
+{
+	return 1.79284291400159 - 0.85373472095314 * r;
+}
 
-.right::after { left: -16px; }
+float snoise(vec3 v)
+	{
+	const vec2	C = vec2(1.0/6.0, 1.0/3.0) ;
+	const vec4	D = vec4(0.0, 0.5, 1.0, 2.0);
 
-.content { padding: 20px 30px; background-color: white; position: relative; border-radius: 6px; }
+// First corner
+	vec3 i	= floor(v + dot(v, C.yyy) );
+	vec3 x0 =	 v - i + dot(i, C.xxx) ;
 
-* {
+// Other corners
+	vec3 g = step(x0.yzx, x0.xyz);
+	vec3 l = 1.0 - g;
+	vec3 i1 = min( g.xyz, l.zxy );
+	vec3 i2 = max( g.xyz, l.zxy );
+
+	//	 x0 = x0 - 0.0 + 0.0 * C.xxx;
+	//	 x1 = x0 - i1	+ 1.0 * C.xxx;
+	//	 x2 = x0 - i2	+ 2.0 * C.xxx;
+	//	 x3 = x0 - 1.0 + 3.0 * C.xxx;
+	vec3 x1 = x0 - i1 + C.xxx;
+	vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y
+	vec3 x3 = x0 - D.yyy;			// -1.0+3.0*C.x = -0.5 = -D.y
+
+// Permutations
+	i = mod289(i);
+	vec4 p = permute( permute( permute(
+						 i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+					 + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))
+					 + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+
+// Gradients: 7x7 points over a square, mapped onto an octahedron.
+// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)
+	float n_ = 0.142857142857; // 1.0/7.0
+	vec3	ns = n_ * D.wyz - D.xzx;
+
+	vec4 j = p - 49.0 * floor(p * ns.z * ns.z);	//	mod(p,7*7)
+
+	vec4 x_ = floor(j * ns.z);
+	vec4 y_ = floor(j - 7.0 * x_ );		// mod(j,N)
+
+	vec4 x = x_ *ns.x + ns.yyyy;
+	vec4 y = y_ *ns.x + ns.yyyy;
+	vec4 h = 1.0 - abs(x) - abs(y);
+
+	vec4 b0 = vec4( x.xy, y.xy );
+	vec4 b1 = vec4( x.zw, y.zw );
+
+	//vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;
+	//vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;
+	vec4 s0 = floor(b0)*2.0 + 1.0;
+	vec4 s1 = floor(b1)*2.0 + 1.0;
+	vec4 sh = -step(h, vec4(0.0));
+
+	vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+	vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+
+	vec3 p0 = vec3(a0.xy,h.x);
+	vec3 p1 = vec3(a0.zw,h.y);
+	vec3 p2 = vec3(a1.xy,h.z);
+	vec3 p3 = vec3(a1.zw,h.w);
+
+//Normalise gradients
+	//vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+	vec4 norm = inversesqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+	p0 *= norm.x;
+	p1 *= norm.y;
+	p2 *= norm.z;
+	p3 *= norm.w;
+
+// Mix final noise value
+	vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+	m = m * m;
+	return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1),
+																dot(p2,x2), dot(p3,x3) ) );
+	}
+
+//////////////////////////////////////////////////////////////
+
+// PRNG
+// From https://www.shadertoy.com/view/4djSRW
+float prng(in vec2 seed) {
+	seed = fract (seed * vec2 (5.3983, 5.4427));
+	seed += dot (seed.yx, seed.xy + vec2 (21.5351, 14.3137));
+	return fract (seed.x * seed.y );
+}
+
+//////////////////////////////////////////////////////////////
+
+float PI = 3.1415926535897932384626433832795;
+
+
+float noiseStack(vec3 pos,int octaves,float falloff){
+	float noise = snoise(vec3(pos));
+	float off = 1.0;
+	if (octaves>1) {
+		pos *= 2.0;
+		off *= falloff;
+		noise = (1.0-off)*noise + off*snoise(vec3(pos));
+	}
+	if (octaves>2) {
+		pos *= 2.0;
+		off *= falloff;
+		noise = (1.0-off)*noise + off*snoise(vec3(pos));
+	}
+	if (octaves>3) {
+		pos *= 2.0;
+		off *= falloff;
+		noise = (1.0-off)*noise + off*snoise(vec3(pos));
+	}
+	return (1.0+noise)/2.0;
+}
+
+vec2 noiseStackUV(vec3 pos,int octaves,float falloff,float diff){
+	float displaceA = noiseStack(pos,octaves,falloff);
+	float displaceB = noiseStack(pos+vec3(3984.293,423.21,5235.19),octaves,falloff);
+	return vec2(displaceA,displaceB);
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+		float time = iTime + time;
+		vec2 resolution = resolution.xy;
+	vec2 drag = mouse.xy + sin(time);
+	vec2 offset =mouse.xy + cos(time);
+		//
+	float xpart = fragCoord.x/resolution.x;
+	float ypart = fragCoord.y/resolution.y;
+	//
+	float clip = 210.0;
+	float ypartClip = fragCoord.y/clip;
+	float ypartClippedFalloff = clamp(2.0-ypartClip,0.0,1.0);
+	float ypartClipped = min(ypartClip,1.0);
+	float ypartClippedn = 1.0-ypartClipped;
+	//
+	float xfuel = 1.0-abs(2.0*xpart-1.0);//pow(1.0-abs(2.0*xpart-1.0),0.5);
+	//
+	float timeSpeed = 0.5;
+	float realTime = timeSpeed*time;
+	//
+	vec2 coordScaled = 0.01*fragCoord - 0.02*vec2(offset.x,0.0);
+	vec3 position = vec3(coordScaled,0.0) + vec3(1223.0,6434.0,8425.0);
+	vec3 flow = vec3(4.1*(0.5-xpart)*pow(ypartClippedn,4.0),-2.0*xfuel*pow(ypartClippedn,64.0),0.0);
+	vec3 timing = realTime*vec3(0.0,-1.7,1.1) + flow;
+	//
+	vec3 displacePos = vec3(1.0,0.5,1.0)*2.4*position+realTime*vec3(0.01,-0.7,1.3);
+	vec3 displace3 = vec3(noiseStackUV(displacePos,2,0.4,0.1),0.0);
+	//
+	vec3 noiseCoord = (vec3(2.0,1.0,1.0)*position+timing+0.4*displace3)/1.0;
+	float noise = noiseStack(noiseCoord,3,0.4);
+	//
+	float flames = pow(ypartClipped,0.3*xfuel)*pow(noise,0.3*xfuel);
+	//
+	float f = ypartClippedFalloff*pow(1.0-flames*flames*flames,8.0);
+	float fff = f*f*f;
+	vec3 fire =1.5*vec3(f, fff, fff*fff);
+	//
+	// smoke
+	float smokeNoise = 0.5+snoise(0.4*position+timing*vec3(1.0,1.0,0.2))/2.0;
+	vec3 smoke = vec3(0.3*pow(xfuel,3.0)*pow(ypart,2.0)*(smokeNoise+0.4*(1.0-noise)));
+	//
+	// sparks
+	float sparkGridSize = 30.0;
+	vec2 sparkCoord = fragCoord - vec2(2.0*offset.x,190.0*realTime);
+	sparkCoord -= 30.0*noiseStackUV(0.01*vec3(sparkCoord,30.0*time),1,0.4,0.1);
+	sparkCoord += 100.0*flow.xy;
+	if (mod(sparkCoord.y/sparkGridSize,2.0)<1.0) sparkCoord.x += 0.5*sparkGridSize;
+	vec2 sparkGridIndex = vec2(floor(sparkCoord/sparkGridSize));
+	float sparkRandom = prng(sparkGridIndex);
+	float sparkLife = min(10.0*(1.0-min((sparkGridIndex.y+(190.0*realTime/sparkGridSize))/(24.0-20.0*sparkRandom),1.0)),1.0);
+	vec3 sparks = vec3(0.0);
+	if (sparkLife>0.0) {
+		float sparkSize = xfuel*xfuel*sparkRandom*0.08;
+		float sparkRadians = 999.0*sparkRandom*2.0*PI + 2.0*time;
+		vec2 sparkCircular = vec2(sin(sparkRadians),cos(sparkRadians));
+		vec2 sparkOffset = (0.5-sparkSize)*sparkGridSize*sparkCircular;
+		vec2 sparkModulus = mod(sparkCoord+sparkOffset,sparkGridSize) - 0.5*vec2(sparkGridSize);
+		float sparkLength = length(sparkModulus);
+		float sparksGray = max(0.0, 1.0 - sparkLength/(sparkSize*sparkGridSize));
+		sparks = sparkLife*sparksGray*vec3(1.0,0.3,0.0);
+	}
+	//
+	fragColor = vec4(max(fire,sparks)+smoke,1.0);
+}
+
+void main() {
+	vec4 colorx;
+	vec2 t;
+   //float t = iBlockOffset + ((gl_FragCoord.x-0.5) + (gl_FragCoord.y-0.5)*512.0)/iSampleRate;
+   vec2 uv = gl_FragCoord.xy;
+	mainImage(colorx,uv);
+	gl_FragColor = colorx;
+}
+
     
-    margin:0;
-    padding:0;
-}
-body, html {
+  </script>
 
-    width:1200px;
-    
-}
-p {
-    line-height:32px;
-    margin-top:20px !important;
-}
-.content a {
-    color: deeppink !important;
-}
-.timeline ul {
-    display:table !important;
-    list-style-type: circle !important;
-}
-.timeline li {
-    font-size:16px !important;
-    display: table-cell !important;
-    height: 18px !important;
-    line-height: 18px !important;
-    vertical-align:middle !important;
-    width:100% !important;
-    margin-left: 10px;
-    margin-top: 5px;
-    
-}
-</style>
-<iframe src="https://jellieware.github.io/tropical.html" width="1200" height="128" border="0" outline="none" frameBorder="0" style="margin-top:64px;position:absolute;"></iframe>
+  <script id="vs" type="x-shader/x-vertex">
+    attribute vec3 position;
 
-<div class="content" style="width:900px;left:0;right:0;top:200px;position:absolute;background:linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,0.3));margin:0 auto;border-radius:0px;margin-left:150px;margin-right:150px;border:1px solid #000;">
-   <!-- <div style="background:gold;width:840px; border:5px solid #111;height:96px;font-size:64px;color:#000;border-radius:0px;line-height:86px;font-family:gothamcond_medium;text-align:center;box-shadow:0 0 10px rgba(0,0,0,0.5)"><span style="text-align:center;padding-bottom:20px;">ALEXT</span><div style="float:right;background:linear-gradient(#333, #111); border-radius: 0px;width:256px;height:86px;margin-right:0px;color:gold; text-align:center; "><span>RF.GD</span></div></div>
-    <div style="width:840px;height:96px;background:linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.3));margin-top:-96px;border-radius:0px;z-index:9999999;"></div>-->
-    <a href="#"> <div style="height:32px;width:840px;background:#111;"></div>
-    <div style="height:128px;width:840px;background:#111;border-top:2px solid #fff;font-family:gothamcond_medium;color:#fff;font-size:48px;line-height:128px;box-shadow:0 0 5px rgba(0,0,0,0.5);">
-        <div style="margin-left:30px;line-height:64px;float:left;"><span>jellieware.github.io/</span></div>
-        
-        <div style="margin-left:30px;line-height:64px;float:left;"><span>Scripts & Graphic Design<br><span style="margin-left:60px;"></span></span></div>
-    <img src="https://jellieware.github.io/arrow.svg" width="96" height="96" style="float:right;filter: invert(1);margin:16px;">
-  
-    </div></a>
-    <div class="timeline">
-  <div class="container left">
-    <div class="content">
-      <h2>2025 January</h2>
- <p>
-    Looking for a good site domain name: Jellyware?</p>
-    <p>
-    Added a few new/updated shell scripts for Android/Termux/Linux:
-        <ul>
-    <li>MPD Dj Shuffle</li>
-        <li>Search Everything</li>
-        <li>World Clock    </li>
-        <li>Astrolog  </li>
-        <li>Noaa Weather  </li>
-        <li>Scripts Launcher  </li>
-    </ul>
-      </p>
- <p>
-    Modifying Shaders:
-    <ul>
-    <li>Fireplace</li>
-        <li>Seascape    </li>
-        <li>Seascape Tropical    </li>
-        <li>PlasmaGlobe    </li>
-        <li>Fluids    </li>
-    </ul>
-      </p>
-      <p>
-    New <a href="mailto:lexaterra@proton.me">eMail</a> Account. From Proton Mail in Switzerland, next to CERN. New Phone# too.
-      </p>
-      <p>
-          Added some new Chicago/Detroit/India based Radio Station playlists from the Web
-      </p>
-      <p>
-          New github account: <a href="http://github.com/lexaterra">http://github.com/lexaterra</a>
-      </p>
-    </div>
-  </div>
-  <div class="container right">
-    <div class="content">
-      <h2>2024</h2>
-      <p>Locked out of my account on github: <a href="http://github.com/lexterror">http://github.com/lexterror</a></p>
-      <p>
-          Locked out of FlickR
-      </p>
-   <p>
-          Locked out of Gmail
-      </p>
-   <p>
-          Locked out of Yahoo Mail
-      </p>
-          <p>
-       Created CryptoCube: <img src="cryptocubeXZ.png" width="32" height="32" style="vertical-align:middle;">. An old Inkscape project transformed!
-      </p>
- <p>
-    Living in Walpole MA, U.S.A</p>
-    <p>
-    </div>
-  </div>
-  
- <div class="container left">
-    <div class="content">
-      <h2>1996-2023</h2>
-      <p>Attended MassBay in Wellesley for Computer Science.</p>
-      <p>Attended NorthEastern Uni in Boston with Credits in Biology, Math, Programming, English</p>
-      <p>
-      <p>
-          Took Art Classes at Boston Uni and NewtonHS Community Classes.
-      </p>
-      <p>
-    Completed GED
-      </p>
-      <p>
-         Moved to Brookline MA in 1996 (Assembled my first personal computer) Intel Pentium I, 100Mhz, 32MB/RAM, Voodoo 3dfx Graphics, Sound Blaster 16, Storage:? for a total of $1000. I had to learn how to boot/install the OS from floppies. Took an interest in Windows 95, Mandriva/RedHat Linux, reverse engineering software, html/cpp/java. Begun using the internet at school and at home with a dial up modem.
-      </p>
-    </div>
-  </div>
-  
-  
- <div class="container right">
-    <div class="content">
-      <h2>1991-1996</h2>
-      <p>Lived in Madrid, Spain. Attended the French Lycee of Madrid.</p><p> Utilized Apple computer laptop with trackball and played Blockout 3D. First time seeing Leisure Suit Larry series.
-      </p>
-    </div>
-  </div>
-<div class="container left">
-    <div class="content">
-      <h2>1987-1991</h2>
-      <p>Lived in Ibiza, Spain. Attended the French Lycee of Ibiza.</p><p>Utilized Monochrome computers at school and in public locations. Played Toki Arcade Machine at a local bar. TMNT was popular at a local arcade.
-      </p>
-    </div>
-  </div>
-<div class="container right ">
-    <div class="content">
-      <h2>1981-1987</h2>
-      <p>
-          Born in Manhattan NY, and lived in Long Island NY.
-      </p>
-    </div>
-  </div>
-</div>
+    void main(void){
+      gl_Position = vec4(position, 1.0);
+    }
+  </script>
 
-</div>
+  <script>
+    // WebGL initialization and shader handling
+    const vertexShaderSource = document.getElementById('vs').textContent.trim();
+    const fragmentShaderSource = document.getElementById('fs').textContent.trim();
+
+    let canvas = document.getElementById('canvas');
+    let gl = canvas.getContext('webgl');
+
+    if (!gl) {
+      console.error('WebGL not supported');
+    }
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    // Create vertex shader
+    let vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, vertexShaderSource);
+    gl.compileShader(vertexShader);
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+      console.error('Vertex shader compilation error:', gl.getShaderInfoLog(vertexShader));
+    }
+
+    // Create fragment shader
+    let fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader, fragmentShaderSource);
+    gl.compileShader(fragmentShader);
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+      console.error('Fragment shader compilation error:', gl.getShaderInfoLog(fragmentShader));
+    }
+
+    // Create shader program
+    let shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+    gl.useProgram(shaderProgram);
+
+    // Define vertex data
+    let vertices = [
+      -1.0, -1.0, 0.0,
+       1.0, -1.0, 0.0,
+      -1.0,  1.0, 0.0,
+       1.0,  1.0, 0.0,
+    ];
+
+    // Create vertex buffer
+    let vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    // Get attribute location and enable vertex attributes
+    let positionAttributeLocation = gl.getAttribLocation(shaderProgram, 'position');
+    gl.enableVertexAttribArray(positionAttributeLocation);
+    gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
+
+    // Set uniform variables
+    let resolutionUniformLocation = gl.getUniformLocation(shaderProgram, 'resolution');
+    let mouseUniformLocation = gl.getUniformLocation(shaderProgram, 'mouse');
+    let timeUniformLocation = gl.getUniformLocation(shaderProgram, 'time');
+
+    function animate(timestamp) {
+      resizeCanvas(); // Ensure canvas size matches window size
+
+      gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
+      gl.uniform2f(mouseUniformLocation, 0.5, 0.5); // Example mouse position
+      gl.uniform1f(timeUniformLocation, timestamp * 0.001); // Time in seconds
+
+      gl.clearColor(0.0, 0.0, 0.0, 1.0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+      requestAnimationFrame(animate);
+    }
+
+    animate(0); // Start animation loop
+  </script>
+  <script>
+      
+  /**
+ * Referenced / https://wgld.org/d/glsl/g001.html
+ * Referenced / https://thebookofshaders.com
+ */
+
+// variable for global
+let c, // canvas
+    cw, ch, // window size
+    mx, my, // mouse
+    gl, // context
+    uniLocation, // for shader
+    run, // not used
+    eCheck, // not used
+    startTime, time, tempTime; // times
+
+/**
+ * Make canvas
+ */
+const createCanvas = () => {
+  const b = document.getElementsByTagName('body')[0];
+  const c = document.createElement('canvas');
+  c.setAttribute('id', 'canvas');
+  c.style.position = 'fixed';
+  c.style.display = 'block';
+  c.style.zIndex = '-1';
+  c.style.top = '0';
+  c.style.left = '0';
+  c.style.width = '100%';
+  c.style.height = '100%';
+  c.style.background = 'black';
+  b.appendChild(c);
+};
+
+/**
+ * Check event
+ * @params {Object} e - check event
+ */
+const checkChange = (e) => {
+  run = e.currentTarget.checked;
+  if(run){
+    startTime = new Date().getTime();
+    render();
+  }else{
+    tempTime += time;
+  }
+};
+
+/**
+ * Mouse event
+ * @params {Object} e - mouse event
+ */
+const mouseMove = (e) => {
+  mx = e.clientX / cw;
+  my = e.clientY / ch;
+};
+
+/**
+ * Resize window
+ */
+const resizeWindow = () => {
+  cw = c.width = window.innerWidth;
+  ch = c.height = window.innerHeight;
+  init(); 
+};
+
+/**
+ * Rendering function
+ */
+const render = () => {
+  // run?
+  if (!run) return;
+  // time
+  time = (new Date().getTime() - startTime) * 0.001;
+  // clear color
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  // uniforms
+  gl.uniform1f(uniLocation[0], time);
+  gl.uniform2fv(uniLocation[1], [mx, my]);
+  gl.uniform2fv(uniLocation[2], [cw, ch]);
+  // draw
+  gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+  gl.flush();
+  // recur
+  requestAnimationFrame(render);
+};
+
+/**
+ * Create shader
+ * @params {String} id - element id
+ * @return {Object} shader - shader object
+ */
+const create_shader = (id) => {
+  let shader;
+  // get reference tag
+  const scriptElement = document.getElementById(id);
+  // if not exsist return
+  if (!scriptElement) return;
+  // check script attribute
+  switch (scriptElement.type) {
+    // vertex shader
+    case 'x-shader/x-vertex':
+      shader = gl.createShader(gl.VERTEX_SHADER);
+      break;
+    // fragment shader
+    case 'x-shader/x-fragment':
+      shader = gl.createShader(gl.FRAGMENT_SHADER);
+      break;
+    default :
+      return;
+  }
+  // assign source to shader
+  gl.shaderSource(shader, scriptElement.text);
+  // compile shader
+  gl.compileShader(shader);
+  // check shader was compiled?
+  if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+
+    return shader;
+  } else {
+    console.log(gl.getShaderInfoLog(shader));
+  }
+};
+
+/**
+ * Create program object and link shader function
+ * @param {String} vs - element name
+ * @param {String} fs - element name
+ * @return {object} program - return program object
+ */
+const create_program = (vs, fs) => {
+  let program;
+  // create program object
+  program = gl.createProgram();
+  // attach shader program object
+  gl.attachShader(program, vs);
+  gl.attachShader(program, fs);
+  // link shader
+  gl.linkProgram(program);
+  // check shader link
+  if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    // if success enable program
+    gl.useProgram(program);
+
+    return program;
+  } else {
+
+    return null;
+  }
+};
+
+/**
+ * Create vbo function
+ * @param {Array} - Array in position
+ * @return {Object} - vertex buffer object 
+ */
+const create_vbo = (data) => {
+  //create buffer object
+  const vbo = gl.createBuffer();
+  // bind buffer
+  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+  // set data to buffer
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+  // invalidata buffer
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  
+  return vbo;
+};
+
+/**
+ * Create index buffer object function
+ * @param {Array} data - Array in index
+ * @return {Object} ibo - index buffer object
+ */
+const create_ibo = (data) => {
+  // create buffer object
+  const ibo = gl.createBuffer();
+  // bind buffer
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+  // set data to buffer
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Int16Array(data), gl.STATIC_DRAW);
+  // invalidate buffer
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+  return ibo;
+};
+
+/**
+ * Init canvas
+ */
+const init = () => {
+  time = 0.0;
+  tempTime = 0.0;
+  uniLocation = new Array();
+  
+  // get element
+  c = document.getElementById('canvas');
+  //eCheck = document.getElementById('check');
+
+  // canvas size
+  cw = c.width = window.innerWidth;
+  ch = c.height = window.innerHeight;
+
+  // get webgl context
+  gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+  
+  // set viewport
+  gl.viewport(0, 0, cw, ch);
+  
+  // init shader
+  const prg = create_program(create_shader('vs'), create_shader('fs'));
+  run = (prg != null); if(!run){eCheck.checked = false;}
+  uniLocation[0] = gl.getUniformLocation(prg, 'time');
+  uniLocation[1] = gl.getUniformLocation(prg, 'mouse');
+  uniLocation[2] = gl.getUniformLocation(prg, 'resolution');
+
+  // init vertex
+  const position = [
+    -1.0,  1.0,  0.0,
+    1.0,  1.0,  0.0,
+    -1.0, -1.0,  0.0,
+    1.0, -1.0,  0.0
+  ];
+  const index = [
+    0, 2, 1,
+    1, 2, 3
+  ];
+
+  const vPosition = create_vbo(position);
+  const vIndex = create_ibo(index);
+  const vAttLocation = gl.getAttribLocation(prg, 'position');
+  gl.bindBuffer(gl.ARRAY_BUFFER, vPosition);
+  gl.enableVertexAttribArray(vAttLocation);
+  gl.vertexAttribPointer(vAttLocation, 3, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vIndex);
+
+  // etc init
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  mx = 0.5;
+  my = 0.5;
+  startTime = new Date().getTime();
+};
+
+window.addEventListener('load', () => {
+  createCanvas();
+  init();
+  render();
+  
+  // event
+  c.addEventListener('mousemove', mouseMove, false);
+  //eCheck.addEventListener('change', checkChange, false);
+  window.addEventListener('resize', resizeWindow, false);
+}, false);    
+      
+  </script>
+  
+  <script>
+
+/*!
+ * dNoise.js v1.0.0
+ * (c) 2019 DIDAVA Media
+ * Released under the MIT License.
+ * https://www.didava.ir
+ * https://github.com/DIDAVA/dNoise
+ */
+const AudioContext=window.AudioContext||window.webkitAudioContext;function dNoise(){const e=new AudioContext,t=10*e.sampleRate,n=e.createBuffer(2,t,e.sampleRate);for(var o=0;o<2;o++){let e=n.getChannelData(o);for(var a=0;a<t;a++)e[a]=2*Math.random()-1}const i=e.createGain();i.gain.value=.85;let r=[i],u={};const l=[31,62,125,250,500,1e3,2e3,4e3,8e3,16e3,22050];l.forEach((t,n)=>{const o=e.createBiquadFilter();0==n?o.type="lowshelf":n==l.length-1?o.type="highshelf":o.type="peaking",o.frequency.value=t,Object.defineProperty(u,`q${t}`,{enumerable:!0,get:()=>o.gain.value,set(e){"number"==typeof e&&(o.gain.value=e)}}),r.push(o)});const c=e.createBiquadFilter();c.type="lowpass",c.frequency.value=22050;const s=e.createBiquadFilter();s.type="highpass",s.frequency.value=0;const f=e.createGain();r.push(c,s,f,e.destination),r.forEach((e,t)=>{0!=t&&r[t-1].connect(e)});let h,p,d=0;const v=()=>{this.stop(),(h=e.createBufferSource()).connect(i),h.loop=!0,h.buffer=n,h.start(),d=0,p=setInterval(()=>{d++},1e3)},g=(e,t,n=22050,o=0)=>{c.frequency.value=n,s.frequency.value=o,l.forEach((n,o)=>u[`q${n}`]=parseInt(e+o*t)),v()};this.red=function(){g(15,-6)},this.pink=function(){g(15,-3)},this.white=function(){g(0,0)},this.blue=function(){g(-15,3)},this.violet=function(){g(-51,6)},this.stop=function(){h instanceof AudioBufferSourceNode&&(h.stop(),h.disconnect(i),h=null,clearInterval(p))},Object.defineProperties(dNoise.prototype,{volume:{enumerable:!0,get:()=>f.gain.value,set(e){f.gain.value=e}},modes:{enumerable:!0,writable:!1,configurable:!1,value:["red","pink","white","blue","violet"]},time:{enumerable:!0,get:()=>d},formattedTime:{enumerable:!0,get(){const e=(e,t)=>("000"+e).slice(-1*t),t=Math.floor(d/3600),n=Math.floor(d/60)%60,o=Math.floor(d-60*n);return`${e(t,2)}:${e(n,2)}:${e(o,2)}`}}})}
+var onlyonce = 0;
+    // Resume audio context if in suspended state (browsers' autoplay policy)
+   // window.addEventListener( 'click', () => {
+//if (onlyonce == 0)
+//{
+const noise = new dNoise();
+noise.red();
+//}
+onlyonce = 1;
+
+ //   });
+</script>
 </body>
 </html>
