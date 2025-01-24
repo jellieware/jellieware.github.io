@@ -56,27 +56,25 @@ li {
 
 <div style="width:1200px !important;height:64px !important;background:linear-gradient(#333, #111);box-shadow:0 0 5px #000;z-index:999999999;position:absolute !important;top:0 !important ;left:0 !important;right:0!important;margin:0 auto !important;display:block !important;opacity:1;text-align:center;">
 <ul>
-<?php
+    <li class="nav">
+    <a href ="https://jellieware.github.io/index.html">Home</a>
+    </li>
+      <li class="nav">
+    <a href ="https://jellieware.github.io/ical.html">Calendar</a>
+    </li>
+  <li class="nav">
+    <a href ="https://jellieware.github.io/notebooks.html">Notebooks</a>
+    </li>
+      <li class="nav">
+    <a href ="https://jellieware.github.io/fireplace.html">Fireplace</a>
+    </li>
+  <li class="nav">
+    <a href ="https://jellieware.github.io/about.html">About</a>
+    </li>
+  <li class="nav">
+    <a href ="mailto:lexaterra@proton.me">Contact</a>
+    </li>
 
-		$current = array(
-			"index.php" => "Home",
-			"search.php" => "Search",
-			"ical.php" => "Calendar",
-			"notebooks.php" => "Notebooks",
-			"fireplace.php" => "Fireplace",
-			"about.php" => "About",
-			"mailto:lexaterra@proton.me" => "Contact",
-			"http://alext.rf.gd/ICEcoder" => "Admin",
-			
-		);
-		foreach( $current as $k => $v ) {
-			$active = $page == $k
-				? ' class="active"'
-				: '';
-			echo '<li class="nav"><a href="'. $k .'"'. $active .'>'. $v .'</a></li>';
-		}
-
-?>
 </ul>
 </div>
 <style>
