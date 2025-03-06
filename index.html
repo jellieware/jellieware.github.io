@@ -282,6 +282,16 @@ function deep(wordR){
   url('/fonts/Philly.ttf')  format('truetype'); /* Safari, Android, iOS */
   font-size: 100%;
   }	
+
+	@font-face {
+  font-family: 'heln';
+  src: url('cozette.eot'); /* IE9 Compat Modes */
+  src: url('cozette.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('fonts/helvetican.woff2') format('woff2'), /* Super Modern Browsers */
+  url('fonts/helvetican.woff') format('woff'), /* Pretty Modern Browsers */
+  url('fonts/cozette.ttf')  format('truetype'); /* Safari, Android, iOS */
+  font-size: 100%;
+  } 
 </style>
 
 <html lang="en" >
@@ -299,14 +309,17 @@ function deep(wordR){
 <div style="margin-top:0px;background:linear-gradient(90deg,rgba(0,0,0,0),#000,#000,#000,rgba(0,0,0,0));width:900px;height:96px;">
 <span  class="footer"><b>UNDER CONSTRUCTION</b></span>
 </div>
-
 <div class="ruled-paper-header"></div>
 
 
 <div class="ruled-paper-header texttd"><span id="who" style="display:none;"></span>
-
-<span class="inked">UrbanRealm</span>
-<span class="byby"> | A Wary Site</span>
+<div style="width:300px;float:left;text-align:right;">
+<span class="byby">Created</span><br>
+<span class="byby">by, and for:</span>
+</div>
+<div style="width:580px;float:right;text-align:left;margin-left:20px;">
+<span class="inked">Drifters</span>
+</div>
 </div>
   <div class="ruled-paper-body" contenteditable="false">
   
@@ -417,7 +430,7 @@ right:0;
        line-height: 96px;
        text-align:center;
         display:block;
-font-family:helvetica;
+font-family:heln;
 background: repeating-linear-gradient(
   45deg,
   #777,
@@ -1468,25 +1481,23 @@ function moon() {
 moon();*/
 </script>
 <style>
-hr  {
-    overflow: visible; /* For IE */
-    padding: 0;
-    border: none;
-    border-top: medium double #333;
-    color: #333;
-    text-align: center;
-    margin-top:15px;
-    margin-right: 20px;
+
+hr {
+  border-top: solid lawngreen 1px;
+  margin: 64px 0;
 }
 hr:after {
-    content:k;
-    display: inline-block;
-    position: relative;
-    top: -0.7em;
-    font-size: 16px;
-    line-height: 16px;
-    padding: 0 0.25em;
-    background: white;
+  content: url( 'cryptocube.png' );
+  /* Controls the position of the logo */
+  left: 50%;
+  position: absolute;
+  transform: translateY(-50%) translateX(-50%);
+  /* Controls the whitespace around the symbol */
+  padding: 20px;
+  background: #fff;
+}
+x:-o-prefocus, hr:after {
+  content: "";
 }
 </style>
 
@@ -3408,11 +3419,21 @@ td+td {
 
 .inked {
 font-family:"philly";
+line-height:32px !important;
+font-size:96px !important;
 }
 
 .byby {
 font-family:"southem";
 font-size: 32px !important;
+line-height:32px !important;
+}
+.bybymail {
+font-family:"southem";
+font-size: 32px !important;
+color:#999 !important;
+line-height:64px !important;
+
 }
    * {
       padding:0;
@@ -3478,7 +3499,7 @@ body {
 */
   background:#fff;
   flex-grow: 1;
-  height:128px;
+  height:256px;
   width:100%;
   font-size:64px;
   text-align:center;
@@ -3491,7 +3512,7 @@ body {
  /* background-image: linear-gradient(90deg, transparent 79px, var(--margin-line-color) 79px, var(--margin-line-color) 81px, transparent 81px), linear-gradient(var(--ruling-line-color) .1em, transparent .1em);
 */
   
-  flex-grow: 8;
+  flex-grow:0;
   padding-top: .2rem;
   padding-left: 20px;
   line-height: 1.2;
