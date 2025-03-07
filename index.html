@@ -1337,8 +1337,13 @@ for (j = 0; j < mysortedarray.length; j++)
 }
  
 /* Css3 tags */
-	
+span {
+margin-right:5px !important;
+margin-left:5px !important;
+}	
 .tags a {
+
+            
 	display: inline-block;
 	height:24px;
 	line-height:23px;
@@ -2424,13 +2429,7 @@ word-spacing:9999px;
 	font-family: national;
 	font-size:48px;
 	line-height: 48px;
-	width:100%;
-	height:100%;
-	margin: 0 auto;	
-	position:absolute;
-	left:0;
-	right:0;
-	
+	float: right !important;
 	
 
 
@@ -2438,7 +2437,7 @@ word-spacing:9999px;
 
 .resultwords {
   
-
+float: left !important;
 }
 .stack {
 
@@ -3398,11 +3397,11 @@ td+td {
   
   @font-face {
   font-family: 'uber';
-  src: url('UberhandPro-Medium.eot'); /* IE9 Compat Modes */
-  src: url('UberhandPro-Medium.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-  url('fonts/UberhandPro-Medium.woff2') format('woff2'), /* Super Modern Browsers */
-  url('fonts/UberhandPro-Medium.woff') format('woff'), /* Pretty Modern Browsers */
-  url('UberhandPro-Medium.ttf')  format('truetype'); /* Safari, Android, iOS */
+  src: url('Gotham.eot'); /* IE9 Compat Modes */
+  src: url('Gotham.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('fonts/Gotham.woff2') format('woff2'), /* Super Modern Browsers */
+  url('fonts/Gotham.woff') format('woff'), /* Pretty Modern Browsers */
+  url('Gotham.ttf')  format('truetype'); /* Safari, Android, iOS */
   font-size: 100%;
   }
 
@@ -3444,7 +3443,15 @@ line-height:64px !important;
 body {
 
 }
-
+ @font-face {
+  font-family: 'depart';
+  src: url('DepartureMono-Regular.eot'); /* IE9 Compat Modes */
+  src: url('DepartureMono-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('DepartureMono-Regular.woff2') format('woff2'), /* Super Modern Browsers */
+  url('DepartureMono-Regular.woff') format('woff'), /* Pretty Modern Browsers */
+  url('DepartureMono-Regular.ttf')  format('truetype'); /* Safari, Android, iOS */
+  font-size: 100%;
+  } 
  a {
  
 color: #999;
@@ -3491,7 +3498,7 @@ body {
   margin: 0 auto;
   top:300px;
   position:absolute;
-  width:900px;
+  width:600px;
 }
 
 .ruled-paper .ruled-paper-header {
@@ -3523,6 +3530,7 @@ body {
 color: darkgreen;
 font-style: italic;
 cursor:pointer;
+float:right;
 }
 
 .deletethis {
@@ -3530,6 +3538,7 @@ cursor:pointer;
 color: darkred;
 font-style: italic;
 cursor:pointer;
+float:right;
 }
 .fav {
 
@@ -3546,6 +3555,7 @@ display:none;
 .anagrams {
 color: #4B0150;
 cursor: pointer;
+float:right;
 }
 </style>
 <script>
