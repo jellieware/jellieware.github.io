@@ -166,7 +166,6 @@ function deep(wordR){
 
 .page {
   color: #fff;
-  text-shadow: 0 0 5px #000, 0 0 5px #000;
   height: 306px;
   width: 306px;
   text-align: left;
@@ -306,22 +305,20 @@ function deep(wordR){
 <div style="left:0;right:0;width:100% !important;height:300px;background:#000;position:absolute;">
 <iframe src="fireplace.html" frameBorder="0"  width="900"  height="300" style="background:#000;display:block;top:0;width:900px;height:300px;left:0;right:0;margin:0 auto;"></iframe>
 </div>
+
+
+
+
+
+
 <div class="ruled-paper" role="main">
 
-<div style="margin-top:0px;background:linear-gradient(90deg,rgba(0,0,0,0),#111,#111,#111rgba(0,0,0,0));width:900px;height:96px;">
-<span  class="footer"><b>UNDER CONSTRUCTION</b></span>
-</div>
+
 <div class="ruled-paper-header"></div>
 
 
-<div class="ruled-paper-header texttd" style="display:none;"><span id="who" style="display:none;"></span>
-<div style="width:300px;float:left;text-align:right;">
-<span class="byby">Created</span><br>
-<span class="byby">by, and for:</span>
-</div>
-<div style="width:580px;float:right;text-align:left;margin-left:20px;">
-<span class="inked">Drifters</span>
-</div>
+<div class="ruled-paper-header texttd" style="display:block;"><span id="who" style="display:none;"></span>
+
 </div>
   <div class="ruled-paper-body" contenteditable="false">
   
@@ -387,7 +384,7 @@ function deep(wordR){
 
   
   
-<div id="controlz" style="background:#222;left:0;right:0;margin:0 auto;z-index:99999999999999999999999999999999999999999999;">
+<div id="controlz" style="display:none;background:#222;left:0;right:0;margin:0 auto;z-index:99999999999999999999999999999999999999999999;">
 
 
   <div id="inputz" style="margin: 0 auto;left:0;right:0;width:300px;height:128px;top:0px;" >
@@ -410,6 +407,7 @@ function deep(wordR){
 
 </div>
   <!-- textarea-->
+
 </div>
  
 
@@ -426,13 +424,12 @@ function deep(wordR){
 left:0;
 right:0;
       margin: 0 auto;
-      width:900px;
-      height:96px;
+      width:430px;
+      height:64px;
        font-size: 64px;
-       line-height: 96px;
+       line-height: 64px;
        text-align:center;
-        display:none;
-font-family:heln;
+font-family:uber !important;
 background: repeating-linear-gradient(
   45deg,
   #777,
@@ -1364,7 +1361,6 @@ margin-left:5px !important;
 	font-size:12px;
 	font-family: "Lucida Grande","Lucida Sans Unicode",Verdana,sans-serif;
 	text-decoration: none;
-	text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 	font-weight: bold;
 	float: left;
 	}
@@ -1838,14 +1834,14 @@ for(var i=0;i<mysortedarray.length;i++) {
             
       if (haslink == 0)
       {
-      waitforlyrics += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="https://google.com/?q=\'' + mysortedarray[i] + '\'" target="_blank"><font color="orange">search</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>';
+      waitforlyrics += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="https://google.com/?q=\'' + mysortedarray[i] + '\'" target="_blank"><font color="lawngreen">search</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>';
      
      
      }
       if (haslink == 1)
       {
       haslink = 0;
-      waitforlinks += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="' + mysortedarray[i] + '" target="_blank"><font color="orange">Open</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>' 
+      waitforlinks += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="' + mysortedarray[i] + '" target="_blank"><font color="lawngreen">Open</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>' 
      }     
           
          
@@ -1859,7 +1855,7 @@ for(var i=0;i<mysortedarray.length;i++) {
 
       
        }
-            var linkstitle = "&emsp;Links&nbsp;&#127758;<br><br>" + waitforlinks + "<br><br>&emsp;Lyrics&nbsp;&#10084;<br><br>" + waitforlyrics;
+            var linkstitle = "&emsp;Links&nbsp;&#127758;<br><br>" + waitforlinks + "<br><br>&emsp;LyricsList&nbsp;&#10084;<br><br>" + waitforlyrics;
             $('.ruled-paper-body').prepend(linkstitle);
        tagme();
 }
@@ -1930,14 +1926,14 @@ for(var i=0;i<mysortedarray.length;i++) {
             
       if (haslink == 0)
       {
-      waitforlyrics += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="https://google.com/?q=\'' + mysortedarray[i] + '\'" target="_blank"><font color="orange">search</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>';
+      waitforlyrics += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="https://google.com/?q=\'' + mysortedarray[i] + '\'" target="_blank"><font color="lawngreen">search</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>';
      
      
      }
       if (haslink == 1)
       {
       haslink = 0;
-      waitforlinks += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="' + mysortedarray[i] + '" target="_blank"><font color="orange">Open</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>' 
+      waitforlinks += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="' + mysortedarray[i] + '" target="_blank"><font color="lawngreen">Open</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>' 
      }     
           
          
@@ -1951,7 +1947,7 @@ for(var i=0;i<mysortedarray.length;i++) {
 
       
        }
-            var linkstitle = "&emsp;Links&nbsp;&#127758;<br><br>" + waitforlinks + "<br><br>&emsp;Lyrics&nbsp;&#10084;<br><br>" + waitforlyrics;
+            var linkstitle = "&emsp;HyperLinks&nbsp;&#127758;<br><br>" + waitforlinks + "<br><br>&emsp;LyricsList&nbsp;&#10084;<br><br>" + waitforlyrics;
             $('.ruled-paper-body').prepend(linkstitle);
        tagme();
 }
@@ -2096,14 +2092,14 @@ for(var i=0;i<mysortedarray.length;i++) {
             
       if (haslink == 0)
       {
-      waitforlyrics += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="https://google.com/?q=\'' + mysortedarray[i] + '\'" target="_blank"><font color="orange">search</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>';
+      waitforlyrics += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="https://google.com/?q=\'' + mysortedarray[i] + '\'" target="_blank"><font color="lawngreen">search</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>';
      
      
      }
       if (haslink == 1)
       {
       haslink = 0;
-      waitforlinks += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="' + mysortedarray[i] + '" target="_blank"><font color="orange">Open</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>' 
+      waitforlinks += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="' + mysortedarray[i] + '" target="_blank"><font color="lawngreen">Open</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>' 
      }     
           
          
@@ -2117,7 +2113,7 @@ for(var i=0;i<mysortedarray.length;i++) {
 
       
        }
-            var linkstitle = "&emsp;Links&nbsp;&#127758;<br><br>" + waitforlinks + "<br><br>&emsp;Lyrics&nbsp;&#10084;<br><br>" + waitforlyrics;
+            var linkstitle = "&emsp;HyperLinks&nbsp;&#127758;<br><br>" + waitforlinks + "<br><br>&emsp;LyricsList&nbsp;&#10084;<br><br>" + waitforlyrics;
             $('.ruled-paper-body').prepend(linkstitle);
        tagme();
 
@@ -2192,14 +2188,14 @@ for(var i=0;i<mysortedarray.length;i++) {
             
       if (haslink == 0)
       {
-      waitforlyrics += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="https://google.com/?q=\'' + mysortedarray[i] + '\'" target="_blank"><font color="orange">search</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>';
+      waitforlyrics += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="https://google.com/?q=\'' + mysortedarray[i] + '\'" target="_blank"><font color=""awngreen">search</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>';
      
      
      }
       if (haslink == 1)
       {
       haslink = 0;
-      waitforlinks += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="' + mysortedarray[i] + '" target="_blank"><font color="orange">Open</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>' 
+      waitforlinks += '<span class="resultwords \'' + mysortedarray[i] + '\')">'+ cocky + '</span><span class="thesaurus ' + mysortedarray[i]  + '" onclick="getjuice(\'' + mysortedarray[i]  + '\')">' + '&nbsp;&nbsp;thesaurus' + '</span>&nbsp;&nbsp;<a href="' + mysortedarray[i] + '" target="_blank"><font color="lawngreen">Open</font></a>&nbsp;&nbsp;<span class="anagrams" onclick="alexsgetanagrams(\'' + cocky + '\')">anagrams</span><span class="deletethis \'' + mysortedarray[i] + '\'" onclick="rem(\'' + mysortedarray[i] + '\')"> &nbsp;&nbsp;delete</span><span class="fav fav' + mysortedarray[i] + '"></span><br>' 
      }     
           
          
@@ -2213,7 +2209,7 @@ for(var i=0;i<mysortedarray.length;i++) {
 
       
        }
-            var linkstitle = "&emsp;Links&nbsp;&#127758;<br><br>" + waitforlinks + "<br><br>&emsp;Lyrics&nbsp;&#10084;<br><br>" + waitforlyrics;
+            var linkstitle = "&emsp;HyperLinks&nbsp;&#127758;<br><br>" + waitforlinks + "<br><br>&emsp;LyricsList&nbsp;&#10084;<br><br>" + waitforlyrics;
             $('.ruled-paper-body').prepend(linkstitle);
        tagme();
     
@@ -3421,7 +3417,7 @@ td+td {
 .inked {
 font-family:"philly";
 line-height:32px !important;
-font-size:96px !important;
+font-size:64px !important;
 }
 
 .byby {
@@ -3455,8 +3451,7 @@ body {
   font-size: 100%;
   } 
  a {
- 
-color: #999;
+ color:#999;
 
 }
 .itemsx a {
@@ -3490,7 +3485,7 @@ body {
 
 .ruled-paper {
 
-  color:#111111;
+ 
   width: 100%;
   /*display: flex;
   flex-direction: column;*/
@@ -3507,13 +3502,9 @@ body {
  /*background-image: linear-gradient(90deg, transparent 79px, var(--margin-line-color) 79px, var(--margin-line-color) 81px, transparent 81px);
 */
   background:#fff;
-  flex-grow: 1;
   height:0px;
   width:100%;
   font-size:64px;
-  text-align:center;
-  line-height: 128px;
-  font-family:ny !important;
  
 }
 
@@ -3529,7 +3520,7 @@ body {
 }
 .thesaurus {
 
-color: darkgreen;
+color: #999;
 font-style: italic;
 cursor:pointer;
 float:right;
@@ -3537,7 +3528,7 @@ float:right;
 
 .deletethis {
 
-color: darkred;
+color: red;
 font-style: italic;
 cursor:pointer;
 float:right;
@@ -3555,7 +3546,7 @@ display:none;
 display:none;
 }
 .anagrams {
-color: #4B0150;
+color: #999;
 cursor: pointer;
 float:right;
 }
@@ -3867,7 +3858,20 @@ barnone += myfinalwords + " ";
 window.alert(gotcha + ": " + barnone);
 
 }
+$("body").dblclick(function() {
+  // Action to perform on double click/tap
+  textit();
+});
 minmax();
+var contra=0;
+function textit()
+{
+if (contra%2 == 0)
+$('#controlz').css('display', 'block');
+if (contra%2 != 0)
+$('#controlz').css('display', 'none');
+contra++;
+}
 </script>
 
 <!--
