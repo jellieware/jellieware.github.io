@@ -1,2975 +1,621 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
-	<link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48" />
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="shortcut icon" href="/favicon.ico" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-<link rel="manifest" href="/site.webmanifest" />
   <meta charset="UTF-8">
-  <title>Lexs Pixel Fireplace</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shader Animation</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #000;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
 </head>
-<style>
-	* {
-	margin: 0 !important;
-	padding: 0 !important; 
-	}
-	cnv {
-    
-              position: absolute;
- 
-            bottom:0;
-}
-html, body  {
-width: 100%;
-height: 100%;
-	background: #000000;
-	
-
-	
-	 
-	}
-canvas {
-padding: 0;
-    margin: auto !important;
-    display: block;
-    position: absolute; 
-    bottom: 0;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 1
- 
-    
-}
-canvas {
-  
-
-  width: auto;
-  
-}
-</style>
 <body>
-<!-- partial:index.partial.html -->
-
-<!-- partial -->
-  <script>
-    
-  class LCG {
-  constructor(seed) {
-    this.seed = seed % 2147483647;
-    if (this.seed <= 0) this.seed += 2147483647 - 1;
-  }
-  next() {
-    this.seed = this.seed * 16807 % 2147483647;
-    return (this.seed - 1) / (2147483647 - 1);
-  }
-}
-
-const lcg = new LCG(Date.now());
-lcg.next()// Generate a pseudo-random number between 0 and 1  
-    
-    
-    
-function timeBasedRandom() {
-  const now = new Date().getTime();
-  const random = (now % 1000) / 1000; // Using milliseconds for "randomness"
-  return random;
-}
-const getRandomInt = (base = 10) => {
-  return Math.floor(lcg.next() * base)
-}
-
-var _seed = 1234;
-function middleSquare(seed){
-   _seed = (seed)?seed:_seed;
-   var sq = (_seed * _seed) + '';
-    _seed = parseInt(sq.substring(0,4));
-   return parseFloat('0.' + _seed);
- // return Math.random();
-}
-var animationFrame = window.requestAnimationFrame ||
-		window.webkitRequestAnimationFrame ||
-		window.mozRequestAnimationFrame ||
-		window.oRequestAnimationFrame ||
-		window.msRequestAnimationFrame;
-var display = "";
-var wavewait = 0;
-var playonce =0;
-var hashorizon = 0;
-var bounce = 0;
-var firebounce = 0;
-var we = 0;
-var he = 0;
-var flamemod =0;
-var holdflamemod=0;
-var xp = 0;
-var fl = 0;
-var shade1, shade2, shade3, shade4, shade5, shade6, shade7, shade8, shade9;
-var sat1, sat2, sat3, sat4, sat5, sat6, sat7, sat8, sat9;
-var bri1, bri2, bri3, bri4, bri5, bri6,  bri7, bri8, bri9;
-var modalpha;
-var sunsetpalette1=["355", "4", "6", "8", "16",  "32", "48", "56", "56"]
-var sunsetpalette2=["59%", "67%", "67%", "74%", "74%", "82%", "79%", "87%", "87"]
-var sunsetpalette3=["13%", "18%", "27%",  "35%", "43%", "47%", "82%", "62%", "62"]
-var anarchy1=["16", "32", "32", "35", "36", "42", "46",  "52", "52"]
-var anarchy2=["99%", "99%", "99%", "100%", "100%", "100%", "100%", "100%", "100%"]
-var anarchy3=["55%", "54%", "54%", "53%", "53%",  "53%", "53%", "55%", "60%"]
-var neon1=["120", "120", "120", "120", "120", "140", "134",  "129", ""]
-var neon2=["100%", "100%", "100%", "100%", "100%", "80%", "100%", "97%", ""]
-var neon3=["81%", "20%", "30%", "40%", "50%",  "50%", "72%", "88%", ""]
-var classic1=["10", "19", "25", "30", "35", "44", "50",  "55", ""]
-var classic2=["100%", "99%", "96%", "91%", "90%", "92%", "92%", "100%", ""]
-var classic3=["55%", "48%", "46%", "52%", "54%",  "55%", "56%", "60%", ""]
- var updown=0;
-var loopy=0;
-var fps = 12;
-var tr1 = 0;
-var tr2 = 0;
-var tr3 = 0;
-var tr4 = 0;
-var tr5 = 0;
-var tr6 = 0;
-var tr7 = 0;
-var tr8 = 0;
-var tr9 = 0;
-var tr10 = 0;
-var tr11 = 0;
-var tr12 = 0;
-var tr13 = 0;
-var tr14 = 0;
-var tr15 = 0;
-var tr16 = 0;
-var holder = 0;
-var catchlogs=0;
-var holding = 0;
-var currlim = 0;
-var lights = 0;
-var burnin=0;
-var reallyslowwood=0;
-var bouncy=0;
-var flame1 = 0;
-var holdlogsx=-336;
-var holdlogs=0;
-var flame2 = 0;
- var palettenames1 = [sunsetpalette1, anarchy1, neon1, classic1]
- var palettenames2 = [sunsetpalette2, anarchy2, neon2, classic2]
- var palettenames3= [sunsetpalette3, anarchy3, neon3, classic3]
-            shade1 = palettenames1[0][1];
-        	sat1 = palettenames2[0][1];
-            bri1 = palettenames3[0][1];
-        
-        
-			shade2 = palettenames1[0][2];
-			sat2 = palettenames2[0][2];
-		    bri2 = palettenames3[0][2];
-			
-			shade3 = palettenames1[0][3];
-		    sat3 = palettenames2[0][3];
-			bri3 =  palettenames3[0][3];
-			
-			
-		   shade4 = palettenames1[0][4];
-		   sat4 = palettenames2[0][4];
-		   bri4 =   palettenames3[0][4];	
-		
-			shade5 = palettenames1[0][5];
-			sat5 = palettenames2[0][5];
-			bri5 =  palettenames3[0][5];
-			
-			
-		    shade6 = palettenames1[0][6];
-		    sat6 = palettenames2[0][6];
-	        bri6 =  palettenames3[0][6];
-		  
-
-           shade7 = palettenames1[0][7];
-           sat7 = palettenames2[0][7];
-           bri7 = palettenames3[0][7];
-  		  shade8 = palettenames1[0][0];
-		     sat8 = palettenames2[0][0];
-		   bri8 =  palettenames3[0][0];          	
-		
-		  shade9 = palettenames1[0][8];
-		  sat9 = palettenames2[0][8];
-		  bri9 =  palettenames3[0][8];          	
-var depthx = -2;
-var fireplacePosition = "";
-var fireplacePositionv = "";
-var rememberburn1 =0;
-var rememberburn2 =0;
-var rememberburn3 =0;
-var rememberburn4 =0;
-var rememberburn5 =0;
-var rememberburn6 =0;
-var rememberburn7 =0;
-var rememberburn8 =0;
-var darkrand1= 0;
-var darkrand2= 2;
-var darkrand3= 4;
-var darkrand4= 6;
-var darkrand5= 8;
-var darkrand6= 10;
-var darkrand7= 12;
-var darkrand8= 14;
-function getRandomArbitrary(min, max) {
-  return middleSquare() * (max - min) + min;
-}
-var cnv = document.createElement('canvas');
-document.body.appendChild(cnv);
-var ctx = cnv.getContext('2d');
-
-ctx.imageSmoothingEnabled = ctx.webkitImageSmoothingEnabled = ctx.mozImageSmoothingEnabled = ctx.oImageSmoothingEnabled = false;
-
-reqAniFrame = (function() {
-	return window.requestAnimationFrame ||
-		window.webkitRequestAnimationFrame ||
-		window.mozRequestAnimationFrame ||
-		window.oRequestAnimationFrame ||
-		window.msRequestAnimationFrame
-})();
-
-var fireplaceArray = new Array(256);
-var fireplaceColors = []; 
-var poligon = "";
-
-//fireplacePosition = (display.width - display.height) / 2;
-var bg1 = 1;
-var bg2 = 2;
-var bg3 = 3;
-var bg4 = 4;
-var bg5 = 5;
-var bg6 = 6;
-var bg7 = 7;
-var bg8 = 8;
-var bgy1 = 3;
-var bgy2 = 4;
-var bgy3 = 5;
-var bgy4 = 6;
-var bgy5 = 7;
-var bgy6 = 8;
-var bgy7 = 9;
-var bgy8 =10;
-var bgrem1 = 0;
-var bgrem2 = 0;
-var bgrem3 = 0;
-var bgrem4 = 0;
-var bgrem5 = 0;
-var bgrem6 = 0;
-var bgrem7 = 0;
-var bgrem8 = 0;
-
-var lim1 = 0
-var lim2= 0
-var lim3= 0
-var lim4 =0
-var lim5 =0
-var lim6=0  
-var lim7 =0
-var lim8 =0
-var lim1x = 0
-var lim2x= 0
-var lim3x= 0
-var lim4x=0
-var lim5x=0
-var lim6x=0  
-var lim7x=0
-var lim8x =0
-
-
-
- var w1 = 0;
- var w2 = 1;
- var w3 = 2;
- var w4 = 0;
- var w5 = 1
-  var w6 = 2;
- var w7 = 0;
- var w8 = 1;
- var w9 = 2;
- var w10 = 0;
-  var w11 = 1;
- var w12 = 2;
- var w13 = 0;
- var w14 = 1;
- var w15 = 2; 
- var w16 = 0;
-
-var forrev = 0;
-var bg1z = 1;
-var bg2z = 2;
-var bg3z = 3;
-var bg4z = 4;
-var bg5z = 5;
-var bg6z = 6;
-var bg7z = 7;
-var bg8z = 8;
-var bgy1z = 3;
-var bgy2z = 4;
-var bgy3z = 5;
-var bgy4z = 6;
-var bgy5z = 7;
-var bgy6z = 8;
-var bgy7z = 9;
-var bgy8z =10;
-var bgrem1z = 0;
-var bgrem2z = 0;
-var bgrem3z = 0;
-var bgrem4z = 0;
-var bgrem5z = 0;
-var bgrem6z = 0;
-var bgrem7z = 0;
-var bgrem8z = 0;
-
-var wavey = 0;
-var dark1 = 1;
-var dark2 = 2;
-var dark3 = 3;
-var dark4 = 4;
-var dark5 = 6;
-var dark6 = 5;
-var dark7 = 6;
-var dark8 = 7;
-var darky1 = 3;
-var darky2 = 4;
-var darky3 = 5;
-var darky4 = 6;
-var darky5 = 7;
-var darky6 = 8;
-var darky7 = 9;
-var darky8 =10;
-var darkrem1 = 0;
-var darkrem2 = 0;
-var darkrem3 = 0;
-var darkrem4 = 0;
-var darkrem5 = 0;
-var darkrem6 = 0;
-var darkrem7 = 0;
-var darkrem8 = 0;
-var slowwood = 0;
-var dark1z = 12;
-var dark2z = 13;
-var dark3z = 14;
-var dark4z = 15;
-var dark5z = 16;
-var dark6z = 17;
-var dark7z = 18;
-var dark8z = 19;
-var darky1z = 3;
-var darky2z = 4;
-var darky3z = 5;
-var darky4z = 6;
-var darky5z = 7;
-var darky6z = 8;
-var darky7z = 9;
-var darky8z =10;
-var darkrem1z = 0;
-var darkrem2z = 0;
-var darkrem3z = 0;
-var darkrem4z = 0;
-var darkrem5z = 0;
-var darkrem6z = 0;
-var darkrem7z = 0;
-var darkrem8z = 0;
-var forevermax = 0;
-var forevermin = 0;
-var match = 0;
-var sparks1 = 1;
-var sparks2 = 2;
-var sparks3 = 3;
-var sparks4 = 1;
-var sparks5 = 2;
-var sparks6 = 3;
-var sparks7 = 0;
-var sparks8 = 1;
-var sparky1 = 0;
-var sparky2 = 0;
-var sparky3 = 0;
-var sparky4 = 0;
-var sparky5 = 0;
-var sparky6 = 0;
-var sparky7 = 0;
-var sparky8 = 0;
-var woodsy = 0;
-var holdwoodsy = 0;
-var holdwoodsyarr = [];
-var holdwoodsyarr0 = [];
-var holdwoodsyarr2 = [];
-var holdwoodsyarr3 = [];
-var holdwoodsyarr5 = [];
-
-var loglight1=[];
-var loglight2=[];
-var loglight3=[];
-var woodanimation = 0;
-var jello = 0;
-var smart2 = 0;
-var weights = 0
-
-
-            /***********************************************/
-            /**************** MEAT STARTS HERE *************/
-            function spreadFire(src) {
-                var pixel = fireplaceArray[src];
-                if(pixel == 0) {
-                    fireplaceArray[src - 16] = 0;
-                } if ( pixel == 20 || pixel == 21 || pixel == 22 || pixel == 23 || pixel == 24 || pixel == 25 ||
-                 pixel == 26 || pixel == 27) {
-				
-  // if (r < 0.5) fireplaceArray[(y - 1 << 4) + x] = 8;
-   //	if (r > 0.5) fireplaceArray[(y - 1 << 4) + x] = Math.round(middleSquare() * 2 + 1) + 4;
-	   //  if (r > 0.5 && r < 0.999) fireplaceArray[src - 16] = 20;	
-			//	fireplaceArray[(y << 4) + x] = 0;
-             var randIdx = Math.round(lcg.next() * 16 & 3);// & 3; 
-                                 var dst = randIdx + 2;
-                                 fireplaceArray[src - 16] = dst; 
-                }
-            }
-            
-            function doFire() {
-                for(x=0 ; x < 16; x++) {
-                    for (y = 1; y < 16; y++) {
-                        spreadFire(y * 16 + x);
-                    }
-                }
-            }
-            /***********************************************/
-            /*************** MEAT ENDS HERE ****************/
-            /***********************************************/
-
-function fireplaceArrayInit() {
-
-	for (var i = 0; i < 256; i ++) {
-		fireplaceArray[i] = 0;
-	}
-	
-	
-	
-
-
-	
-	/*
-	
-	for (var i = 239; i < 240; i ++) {
-		fireplaceArray[i] = Math.round(Math.random() * 2) + 1 - sparks;
-	} */
-
-}
-fireplaceArrayInit();
-var swayx = 0;
-var swayy = 0;
-var retro =0;
-var burst = 0;
-var shine = 0;
-var gotcha = 0;
-var edge = 0;
-var left=0;
-var right = 0;
-var LRM = 0;
-var topz =0;
-var mylayout =0;
-var toggle1 = 1;
-var toggle2 = 2;
-var toggle3 = 3;
-var smart = 0;
-var TZR = 0;
-var TZL = 0;
-var slide =0;
-var divine=0;
-var divinex = 0;
-var slider1 = 0;
-var slider2 = 0;
-var slider3 = 0;
-var slider4 = 0;
-var slider5 = 0;
-var slider6 = 0;
-var slider7 = 0;
-var slider8 = 0;
-var randomheartbeat = 0;
-
-		 var rememberspot1 = 0;
-		 var rememberspot2 = 0;
-		 var rememberspot3 = 0;
-		 var rememberspot4 = 0;
-		 var rememberspot5 = 0;
-		 var numberspots = 0;
-		 var numberspots2 = 0;
-		 var numberspots3 = 0;
-		 var calarr1 = 0;
-		 var calarr2 = 0;
-		 var calarr3 = 0;
-		 var caldyco = 0;
-		 var ted = 1;
-		 var tedmodulus = 0;
-		 var wavvy = 0;
-		 var zig =0;
-		 var zag = 0;
-		 var twofeettall = 0;
-		 var holdwoodsyarr4 = [];
-		 
-		 
-		 
-		 
-
-function fireplaceMove() {
-fireplaceArrayInit();
-  bounce = getRandomArbitrary(0, 0);
-  bouncex = 0.79;
-  retro = getRandomArbitrary(0.7, 0.7);
-  
-
-//MAGICKBG
-
-  
-	for (var x = (0); x < (16); x++) {
-		for (var y = (0); y < (16); y++) {
-	
-			doFire();
-		   doFire();
-			wavewait++;
-if (wavewait > 65)
-wavewait =0;
-if (wavewait > 64)
-		fireDepth();
-			//lighting();
-			//roony();
-
-			
-
-// #zzzz
-			
-			
-			
-			
-	var between = Math.round(getRandomArbitrary(4, 9));
- if (firebounce == 0)
- {
-   jello = 0;
-  slider1 = 0;
- slider2 = 0;
-slider3 = 0;
-slider4 = 0;
-slider5 = 0;
-slider6 = 0;
-slider7 = 0;
- }
-  if (firebounce == 1)
- {
-      jello = 0;
- slider1 = 0;
- slider2 = 0;
-slider3 = 0;
-slider4 = 0;
-slider5 = 0;
-slider6 = 0;
-slider7 = 0;
- }
-  if (firebounce == 2)
- {
-      jello = 0;
-  slider1 = 0;
- slider2 = 0;
-slider3 = 0;
-slider4 = 0;
-slider5 = 0;
-slider6 = 0;
-slider7 = 0;
- }
-   if (firebounce == 3)
- {
-      jello = 0;
- slider1 = 0;
- slider2 = 0;
-slider3 = 0;
-slider4 = 0;
-slider5 = 0;
-slider6 = 0;
-slider7 = 0;
- }
- 
- var top1 = 0
- var top2 = 0
- var top3 = 0
- var top4 = 0
- var top5 = 0
- var top6 = 0
- var top7 = 0
- var top8 = 0
- var top9 = 0
- var top10 = 0;
-
-  var topmini1x1 = 7;
- var topmini1x2 = 7;
- var topmini1x3 = 7;
- var topmini1x4 = 6;
- var topmini1x5 = 6;
- var topmini1x6 = 6;
- var topmini1x7 = 6;
- var topmini1x8 = 6;
- var topmini1x9 = 6;
- var topmini1x10 = 6;
- var myrandomz = Math.floor(middleSquare() * 12);
-   var topmini2x1 = 7;
- var topmini2x2 = 7;
- var topmini2x3 = 7;
- var topmini2x4 = 6;
- var topmini2x5 = 6;
- var topmini2x6 = 5;
- var topmini2x7 = 4;
- var topmini2x8 = 3;
- var topmini2x9 = 2;
- var topmini2x10 = 1;
-
-
- 
- var separator1 = 0;
- var separator2 = 0;
- 
- var divinemini1 =0;
- var divineminix1 =0;
- var divinemini2 = 0;
- var divineminix2 =0;
- twofeettall = Math.round(getRandomArbitrary(0,0));
- 
- 
-
-//MINIESS
-/*
-if (smart == -1)
- {
- divinemini1 = Math.round(getRandomArbitrary(-1,0));
- }
- if (smart == 0)
- {
-divinemini1 = Math.round(getRandomArbitrary(-1,1));
-}
- if (smart == 1)
- {
-divinemini1 = Math.round(getRandomArbitrary(0,1));
-}
-if (smart2 == -1)
- {
- divineminix1 = Math.round(getRandomArbitrary(-1,0));
- }
- if (smart2 == 0)
- {
-divineminix1 = Math.round(getRandomArbitrary(-1,1));
-}
- if (smart2 == 1)
- {
-divineminix1 = Math.round(getRandomArbitrary(0,1));
-}
-
-
-if (smart == -1)
- {
- divinemini2 = Math.round(getRandomArbitrary(-1,0));
- }
- if (smart == 0)
- {
-divinemini2 = Math.round(getRandomArbitrary(-1,1));
-}
- if (smart == 1)
- {
-divinemini2 = Math.round(getRandomArbitrary(0,1));
-}
-if (smart2 == -1)
- {
- divineminix2 = Math.round(getRandomArbitrary(-1,0));
- }
- if (smart2 == 0)
- {
-divineminix2 = Math.round(getRandomArbitrary(-1,1));
-}
- if (smart2 == 1)
- {
-divineminix2 = Math.round(getRandomArbitrary(0,1));
-}
-*/
-var topbot = 0;
-var countbounce = 0;
-
-var topbotmini1 = 16;
-var topbotmini2 = 48;
-
-var sheets = 0;
-//BIGONE
-var emblem = 0;
-var robit = 0;
-var depth = 0;
-var depth2 = 5;
-var topz = 0;
-var maitai = 0
-var dmin = 0
-
-  if (twofeettall == 0)
- {
-
-var lame = Math.floor(middleSquare() * ((2) - (0)) + (0));
-//var lame = 0; 
-holdflamemod++;
-if (holdflamemod < 2)
-flamemod=0;
-if(holdflamemod > 1000)
-flamemod=0;
-if(holdflamemod > 2000)
-holdflamemod=0;
-flame1 = -1;
-flame2 = -1;
-/*
-if (flamemod == 0)
-{
-flame1 = -1;
-flame2 = 0;
-}
-if (flamemod == 1)
-{
-flame1 = 0;
-flame2 = -1;
-}*/
-   
-   
-  for (ear = 0; ear < 16; ear++)
-   {
-  
-  
-  
-   
-   
-    if (ear == 0)
-     dmin = w1   + depthx + tr1 + 10 + flame1 ; 
-    if (ear == 1)
-     dmin = w2  + depthx  + tr2 + 9 + flame1   + flame1   ;  
-     if (ear == 2)
-     dmin = w3  + depthx  + tr3 + 8 + flame1  + flame1    ;
-     if (ear == 3)
-     dmin = w4  + depthx  + tr4 + 7+ flame1  + flame1   ;
-     if (ear == 4)
-     dmin =  w5 + depthx  + tr5 + 6 + flame1  + flame1   ;
-     if (ear == 5)
-     dmin =  w6 + depthx  + tr6 + 5 + flame1  + flame1   ;
-     if (ear == 6)
-     dmin =  w7  + depthx  + tr7 + 4  + flame1   ;
-     if (ear == 7)
-     dmin =  w8 + depthx  + tr8 + 3 ;
-
-
-if (ear == 15 )
-     dmin = w16 + depthx  + tr16 + 10 + flame2 ; 
-    if (ear == 14 )
-     dmin = w15  + depthx  + tr15 + 9 + flame2 + flame2 ;
-     if (ear == 13 )
-     dmin = w14  + depthx  + tr14 + 8+  flame2+ flame2;
-     if (ear == 12 )
-     dmin = w13 + depthx  + tr13 + 7 + flame2 + flame2  ;
-     if (ear == 11 )
-     dmin =  w12 + depthx  + tr12 + 6  + flame2  + flame2;
-     if (ear == 10 )
-     dmin =  w11 + depthx  + tr11 + 5 + flame2 + flame2   ;
-     if (ear == 9 )
-     dmin =  w10  + depthx  + tr10 + 4  + flame2;
-     if (ear == 8 )
-     dmin =  w9 + depthx  + tr9 + 3 ;
-
- if (w1 > 2)
- w1 = 0;
-  if (w2 > 2)
- w2 = 0;
-  if (w3 > 2)
- w3 = 0;
-  if (w4 > 2)
- w4 = 0;
-  if (w5 > 2)
- w5 = 0;
-  if (w6 > 2)
- w6 = 0;
-  if (w7 > 2)
- w7 = 0;
-  if (w8 > 2)
- w8 = 0;
-  if (w9 > 2)
- w9 = 0;
-  if (w10 > 2)
- w10 = 0;
-  if (w11 > 2)
- w11 = 0;
-  if (w12 > 2)
- w12 = 0;
-  if (w13 > 2)
- w13 = 0;
-  if (w14 > 2)
- w14 = 0;
-  if (w15 > 2)
- w15 = 0;
-  if (w16 > 2)
- w16 = 0;
- 
- w1++;
-  w2++;
-   w3++;
-    w4++;
-  w5++;
-  w6++;
-   w7++;
-    w8++;
-     w9++;
-  w10++;
-   w11++;
-    w12++;
-     w13++;
-  w14++;
-   w15++;
-    w16++;
-    var limit=0;
-    var startfire=0;
-
-    if (holdlogs > 3200)
-    {
-    	holdlogsx = holdlogsx + 16;
-        holdlogs=0;
-    }
-    if (holdlogsx < 0)
-    {
-    	holdlogs++;
-    }
-    if (holdlogsx == 0)
-    startfire=1;
-    
-    if (burnin < 120000)
-     burnin++;
-     if (burnin == 120000)
-     {
-     forevermax = 14;
-     limit = 14;
-     }
-     bouncy++;
-     if (bouncy > 8192)
-     {
-     if (updown == 0)
-     forevermax++;
-      if (updown == 1)
-     --forevermax;
-     }
-     if (forevermax > limit)
-     {
-     updown=1;
-     }
-     if (forevermax < limit)
-     {
-     updown=0;
-     }
-     if (bouncy > 8192)
-     bouncy=0;
-     
-     myrandomz =  ((forevermax - dmin - lame));
- 
-
-
-
-var defaultLR1 = 240 + 32;
-var defaultLR2 = 255 + 32;
-   var equation1 = (defaultLR1 + (ear) + divine + divinex);
-   var myrandomzh = myrandomz;
-   // var equation1 = (240 + robit - topbot + topz + divine + divinex);
-  //  var equation2 = (256 + robit - topbot - topz + divine + divinex);
-		for (var i = 0; i < (myrandomz); i++)
-		{
-	  
-
-		
-if ((i * 16) < ((myrandomz * 16))) 
-	  between = Math.round(getRandomArbitrary(26,27))
-					
-if ((i * 16) == ((myrandomz * 16)-128)) 
-	  between = Math.round(getRandomArbitrary(26,27))	
-if ((i * 16) == ((myrandomz * 16)-112)) 
-	  between = Math.round(getRandomArbitrary(26,27))	
-if ((i * 16) == ((myrandomz * 16)-96)) 
-	  between = Math.round(getRandomArbitrary(25,27))
-if ((i * 16) == ((myrandomz * 16)-80)) 
-	  between = Math.round(getRandomArbitrary(24,26))
-if ((i * 16) == ((myrandomz * 16)-64)) 
-	  between = Math.round(getRandomArbitrary(23,25))
-if ((i * 16) == ((myrandomz * 16)-48)) 
-	  between = Math.round(getRandomArbitrary(22,24))
-if ((i * 16) == ((myrandomz * 16)-32)) 
-	  between = Math.round(getRandomArbitrary(21,24))
-if ((i * 16) == ((myrandomz * 16)-16)) 
-	  between = Math.round(getRandomArbitrary(20,23))
-if ((i * 16) == ((myrandomz * 16))) 
-	  between = Math.round(getRandomArbitrary(20,23))
-        
-		fireplaceArray[(defaultLR1 + ear) + (i * -16)] = between;
-		sheets = between;
-	   
-	
-		/*
-	if   (equation1 == defaultLR1 || equation1 == defaultLR2)
-		{
-		
-//if ((i * 16) > ((myrandomz * 16)-96)) 
-	//  between = Math.round(getRandomArbitrary(1,6))					
-if ((i * 16) == ((myrandomz * 16)-142)) 
-	  between = Math.round(getRandomArbitrary(1,6))
-
-if ((i * 16) == ((myrandomz * 16)-128)) 
-	  between = Math.round(getRandomArbitrary(1,6))
-
-if ((i * 16) == ((myrandomz * 16)-112)) 
-	  between = Math.round(getRandomArbitrary(1,6))
-
-
-	
-if ((i * 16) == ((myrandomz * 16)-96)) 
-	  between = Math.round(getRandomArbitrary(1,6))
-if ((i * 16) == ((myrandomz * 16)-80)) 
-	  between = Math.round(getRandomArbitrary(1, 6))
-if ((i * 16) == ((myrandomz * 16)-64)) 
-	  between = Math.round(getRandomArbitrary(1,6))
-if ((i * 16) == ((myrandomz * 16)-48)) 
-	  between = Math.round(getRandomArbitrary(1,6))
-if ((i * 16) == ((myrandomz * 16)-32)) 
-	  between = Math.round(getRandomArbitrary(1,6))
-if ((i * 16) == ((myrandomz * 16) -16)) 
-	  between = Math.round(getRandomArbitrary(1,5))
-if ((i * 16) == ((myrandomz * 16))) 
-	  between = Math.round(getRandomArbitrary(1,5))
-
-	
-		fireplaceArray[(defaultLR1 + ear) + (i * -16)] = between;
-		
-		  
-		}			
-		*/
-		/*
-	
-	if   (equation1 == (defaultLR1 + 1) || equation1 == (defaultLR2 - 1))
-		{
-//	if ((i * 16) > ((myrandomz * 16)-96)) 
-	 // between = Math.round(getRandomArbitrary(24,25))					
-if ((i * 16) == ((myrandomz * 16)-180)) 
-	  between = Math.round(getRandomArbitrary(24,25))
-
-if ((i * 16) == ((myrandomz * 16)-174)) 
-	  between = Math.round(getRandomArbitrary(24,25))
-
-if ((i * 16) == ((myrandomz * 16)-158)) 
-	  between = Math.round(getRandomArbitrary(24,25))
-
-
-if ((i * 16) == ((myrandomz * 16)-142)) 
-	  between = Math.round(getRandomArbitrary(24,25))
-
-if ((i * 16) == ((myrandomz * 16)-128)) 
-	  between = Math.round(getRandomArbitrary(24,25))
-
-if ((i * 16) == ((myrandomz * 16)-112)) 
-	  between = Math.round(getRandomArbitrary(24,25))
-
-	
-if ((i * 16) == ((myrandomz * 16)-96)) 
-	  between = Math.round(getRandomArbitrary(24,25))
-if ((i * 16) == ((myrandomz * 16)-80)) 
-	  between = Math.round(getRandomArbitrary(23,24))
-if ((i * 16) == ((myrandomz * 16)-64)) 
-	  between = Math.round(getRandomArbitrary(22,23))
-if ((i * 16) == ((myrandomz * 16)-48)) 
-	  between = Math.round(getRandomArbitrary(21,22))
-if ((i * 16) == ((myrandomz * 16)-32)) 
-	  between = Math.round(getRandomArbitrary(20,21))
-if ((i * 16) == ((myrandomz * 16) -16)) 
-	  between = Math.round(getRandomArbitrary(1,5))
-if ((i * 16) == ((myrandomz * 16))) 
-	  between = Math.round(getRandomArbitrary(1,5))
-
-	
-		fireplaceArray[(defaultLR1 + ear) + (i * -16)] = between;
-		
-	
-		}	*/
-	
-
-	
-	
-		
-    }
-    depth =0;
-    robit =0;
-   }
- }
-   
-
- 
- 
- 
-
-	//woodsyorig
-
-   /*
-   	for (var i = 240; i < 245; i ++) {
-  
-   	between = Math.round(getRandomArbitrary(0, 5));
-		holdwoodsy = between;
-		holdwoodsyarr[calarr1] = holdwoodsy;
-		fireplaceArray[i] = holdwoodsyarr[calarr1];
-   	}
-   	for (var i = 224; i < 249; i ++) {
-  
-   	between = Math.round(getRandomArbitrary(0, 5));
-		holdwoodsy = between;
-		holdwoodsyarr[calarr1] = holdwoodsy;
-		fireplaceArray[i] = holdwoodsyarr[calarr1];
-   	}
-   	for (var i = 208; i < 213; i ++) {
-  
-   	between = Math.round(getRandomArbitrary(0, 5));
-		holdwoodsy = between;
-		holdwoodsyarr[calarr1] = holdwoodsy;
-		fireplaceArray[i] = holdwoodsyarr[calarr1];
-   	}*/
- 
-  
- 
- 
-	//woodsyorig
-	if (firebounce > 3)
-	firebounce = 0;
-
-
-		}
-		
-		
-		
-
-
-
-	}
-	  firebounce++;
-woodsy++;
-if (woodsy == 5)
-woodsy = 1;
-	burst = 0;
-
-
-//	if (tedmodulus > 3)
-//	tedmodulus = 0;
-
-//	if (tedmodulus < 2)
-	//ted = 7;
-	//tedmodulus++;
-//	LRM++;
-	if (LRM%2 == 0)
-	{
-	topz = 5;
-  left = 0;
-  right = 0;
-	}
-	if (LRM%2 != 0)
-	{
-	topz= 0;
-	left = 0;
-	right = 0;
-	}
-	
-	//burst
-	
-	
-	between = Math.round(getRandomArbitrary(1, 3));
-
-   
-//////HOLD
-	
-
-
-if (woodanimation == 3)
-woodanimation = 0;
-toggle1++;
-toggle2++;
-toggle3++;
-caldyco++;
-randomheartbeat = 3;
-if (toggle1 > randomheartbeat)
-toggle1 = 1;
-if (toggle2 > randomheartbeat)
-toggle2 = 1;
-if (toggle2 > randomheartbeat)
-toggle2 = 1;
-if (caldyco > 2)
-caldyco = 3;
-
-//fireplaceArray[238] = between;
-//if (startfire == 1) {
-
-
-function sparkbggenerator(mybully, spark, burn, lim) {
-var spark1 = spark;
-
-var betweenx = Math.round(getRandomArbitrary(19, 19));
-if (lim < 4)
-if (mybully < 16)
-{
-if (mybully == 1)
-{
-//burn = spark;
-spark1 = spark1;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-if (mybully == 2)
-{
-//burn = spark;
-spark1 = spark1 - 16;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-if (mybully == 3)
-{
-//burn = spark;
-spark1 = spark1 - 32;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-if (mybully == 4)
-{
-//burn = spark;
-spark1 = spark1 - 48;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-if (mybully == 5)
-{
-//burn = spark;
-spark1 = spark1 - 64;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-if (mybully == 6)
-{
-//burn = spark;
-spark1 = spark1 - 70;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-if (mybully == 7)
-{
-//burn = spark;
-spark1 = spark1 - 96;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-if (mybully == 8)
-{
-//burn = spark;
-spark1 = spark1 - 112;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-if (mybully == 9)
-{
-//burn = spark;
-spark1 = spark1 - 128;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-if (mybully == 10)
-{
-//burn = spark;
-spark1 = spark1 - 144;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-if (mybully == 11)
-{
-//burn = spark;
-spark1 = spark1 - 160;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-if (mybully == 12)
-{
-//burn = spark;
-spark1 = spark1 - 176;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-if (mybully == 13)
-{
-//burn = spark;
-spark1 = spark1 - 192;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-if (mybully == 14)
-{
-//burn = spark;
-spark1 = spark1 - 208;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-
-if (mybully == 15)
-{
-//burn = spark;
-spark1 = spark1 - 224;
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-
-if (mybully == 16)
-{
-//burn = spark;
-spark1 = spark1 - 240; 
-//fireplaceArray[burn] = 1;
-if (fireplaceArray[spark1] == fireplaceArray[sheets])
-{
-lim++;
-if (lim > 1)
-fireplaceArray[spark1] = 19;
-}
-}
-
-}
-currlim = lim; 
-}
-
-
-
-if (caldyco == 3)
-{
-
-function sparkdarkgenerator(mybully, spark, burn) {
-var spark1 = spark;
-var betweenx = Math.round(getRandomArbitrary(6, 8));
-if (mybully < 16)
-{
-if (mybully == 3)
-{
-//burn = spark;
-spark1 = spark1 - 32;
-//fireplaceArray[burn] = 1;
-fireplaceArray[spark1] = 4;
-}
-if (mybully == 4)
-{
-//burn = spark;
-spark1 = spark1 - 48;
-//fireplaceArray[burn] = 1;
-fireplaceArray[spark1] = 4;
-}
-if (mybully == 5)
-{
-//burn = spark;
-spark1 = spark1 - 64;
-//fireplaceArray[burn] = 1;
-fireplaceArray[spark1] = 4;
-}
-if (mybully == 6)
-{
-//burn = spark;
-spark1 = spark1 - 80;
-//fireplaceArray[burn] = 1;
-fireplaceArray[spark1] = 4;
-}
-if (mybully == 7)
-{
-//burn = spark;
-spark1 = spark1 - 96;
-//fireplaceArray[burn] = 1;
-fireplaceArray[spark1] = 4;
-}
-if (mybully == 8)
-{
-//burn = spark;
-spark1 = spark1 - 112;
-//fireplaceArray[burn] = 1;
-fireplaceArray[spark1] = 4;
-}
-if (mybully == 9)
-{
-//burn = spark;
-spark1 = spark1 - 128;
-//fireplaceArray[burn] = 1;
-fireplaceArray[spark1] = 4;
-}
-if (mybully == 10)
-{
-//burn = spark;
-spark1 = spark1 - 144;
-//fireplaceArray[burn] = 1;
-fireplaceArray[spark1] = 4;
-}
-if (mybully == 11)
-{
-//burn = spark;
-spark1 = spark1 - 160;
-//fireplaceArray[burn] = 1;
-fireplaceArray[spark1] = 4;
-}
-}
-}
-
-  
-function sparkgenerator(mybully, spark, burn) {
-var spark1 = spark;
-var betweenx = Math.round(getRandomArbitrary(24,25));
-if (mybully < 5)
-{
-if (mybully == 0)
-{
-
-fireplaceArray[spark1] = betweenx;
-
-}
-
-if (mybully == 1)
-{
-//burn = spark;
-spark1 = spark1 - 16;
-//fireplaceArray[burn] = 1;
-fireplaceArray[spark1] = betweenx;
-}
-
-if (mybully == 2)
-{
-spark1 = spark1 - 32;
-//burn = spark - 16;
-fireplaceArray[spark1] = betweenx;
-}
-if (mybully == 3)
-{
-spark1 = spark1 - 48;
-//burn = spark - 16;
-fireplaceArray[spark1] = betweenx;
-}
-
-
-
-}
-}
-if (startfire == 1) {
-// #zzz
-
-if (bg1z == 1)
-{
-var bgrandz = Math.round(getRandomArbitrary(240, 256));
-bgrem1z = bgrandz;
-bgy1z = bgrandz;
-}
-sparkbggenerator(bg1z, bgy1z, bgrem1z, lim1);
-bg1z++;
-lim1 = currlim;
-currlim = 0;
-if (bg1z > 16)
-{
-  bg1z = 1
-  lim1 = 0;
-}
-
-
-if (bg2z == 1)
-{
-var bgrand2z = Math.round(getRandomArbitrary(240, 256));
-bgrem2z = bgrand2z;
-bgy2z = bgrand2z;
-}
-sparkbggenerator(bg2z, bgy2z, bgrem2z, lim2);
-bg2z++;
-lim2 = currlim;
-currlim = 0;
-if (bg2z > 16)
-{
- bg2z = 1 ;
-   lim2 = 0;
-}
-
-
-if (bg3z == 1)
-{
-var bgrand3z = Math.round(getRandomArbitrary(240, 256));
-bgrem3z = bgrand3z;
-bgy3z = bgrand3z;
-}
-sparkbggenerator(bg3z, bgy3z, bgrem3z,lim3);
-bg3z++;
-lim3 = currlim;
-currlim = 0;
-if (bg3z > 16)
-{
-  bg3z = 1;
-    lim3 = 0;
-}
-
-
-if (bg4z == 1)
-{
-var bgrand4z = Math.round(getRandomArbitrary(240, 256));
-bgrem4z = bgrand4z;
-bgy4z = bgrand4z;
-}
-sparkbggenerator(bg4z, bgy4z, bgrem4z,lim4);
-bg4z++;
-lim4 = currlim;
-currlim = 0;
-if (bg4z > 16)
-{
-  bg4z = 1;
-    lim4 = 0;
-}
-
-
-if (bg5z == 1)
-{
-var bgrand5z = Math.round(getRandomArbitrary(240, 256));
-bgrem5z = bgrand5z;
-bgy5z = bgrand5z;
-}
-sparkbggenerator(bg5z, bgy5z, bgrem5z, lim5);
-bg5z++;
-lim5 = currlim;
-currlim = 0;
-if (bg5z > 16)
-{
-  bg5z = 1;
-    lim5 = 0;
-}
-
-
-if (bg6z == 1)
-{
-var bgrand6z = Math.round(getRandomArbitrary(240, 256));
-bgrem6z = bgrand6z;
-bgy6z = bgrand6z;
-}
-sparkbggenerator(bg6z, bgy6z, bgrem6z, lim6);
-bg6z++;
-lim6 = currlim;
-currlim = 0;
-if (bg6z > 16)
-{
-  bg6z = 1;
-    lim6 = 0;
-}
-
-
-if (bg7z == 1)
-{
-var bgrand7z = Math.round(getRandomArbitrary(240, 256));
-bgrem7z = bgrand7z;
-bgy7z = bgrand7z;
-}
-sparkbggenerator(bg7z, bgy7z, bgrem7z, lim7);
-bg7z++;
-lim7 = currlim;
-currlim = 0;
-if (bg7z > 16)
-{
-  bg7z = 1;
-    lim7 = 0;
-}
-
-if (bg8z == 1)
-{
-var bgrand8z = Math.round(getRandomArbitrary(240, 256));
-bgrem8z = bgrand8z;
-bgy8z = bgrand8z;
-}
-sparkbggenerator(bg8z, bgy8z, bgrem8z, lim8);
-bg8z++;
-lim8 = currlim;
-currlim = 0;
-if (bg8z > 16)
-{
-  bg8z = 1;
-    lim8 = 0;
-}  
-//MAGICKBG
-
-
-if (bg1 == 4)
-{
-var bgrand = Math.round(getRandomArbitrary(240, 256));
-bgrem1 = bgrand;
-bgy1 = bgrand;
-}
-sparkbggenerator(bg1, bgy1, bgrem1, lim1x);
-bg1++;
-lim1x = currlim;
-currlim = 0;
-if (bg1 > 16)
-{
-  bg1 = 4
-  lim1x = 0;
-}
-
-
-if (bg2 == 4)
-{
-var bgrand2 = Math.round(getRandomArbitrary(240, 256));
-bgrem2 = bgrand2;
-bgy2 = bgrand2;
-}
-sparkbggenerator(bg2, bgy2, bgrem2, lim2x);
-bg2++;
-lim2x = currlim;
-currlim = 0;
-if (bg2 > 16)
-{
- bg2 = 4 ;
-   lim2x = 0;
-}
-
-
-if (bg3 == 4)
-{
-var bgrand3 = Math.round(getRandomArbitrary(240, 256));
-bgrem3 = bgrand3;
-bgy3 = bgrand3;
-}
-sparkbggenerator(bg3, bgy3, bgrem3, lim3x);
-bg3++;
-lim3x = currlim;
-currlim = 0;
-if (bg3 > 16)
-{
-  bg3 = 4;
-    lim3x = 0;
-}
-
-
-if (bg4 == 4)
-{
-var bgrand4 = Math.round(getRandomArbitrary(240, 256));
-bgrem4 = bgrand4;
-bgy4 = bgrand4;
-}
-sparkbggenerator(bg4, bgy4, bgrem4, lim4x);
-bg4++;
-lim4x = currlim;
-currlim = 0;
-if (bg4 > 16)
-{
-  bg4 = 4;
-    lim4x = 0;
-}
-
-
-if (bg5 == 4)
-{
-var bgrand5 = Math.round(getRandomArbitrary(240, 256));
-bgrem5 = bgrand5;
-bgy5 = bgrand5;
-}
-sparkbggenerator(bg5, bgy5, bgrem5, lim5x);
-bg5++;
-lim5x = currlim;
-currlim = 0;
-if (bg5 > 16)
-{
-  bg5 = 4;
-   lim5x = 0;
-}
-
-
-if (bg6 == 4)
-{
-var bgrand6 = Math.round(getRandomArbitrary(240, 256));
-bgrem6 = bgrand6;
-bgy6 = bgrand6;
-}
-sparkbggenerator(bg6, bgy6, bgrem6, lim6x);
-bg6++;
-lim6x = currlim;
-currlim = 0;
-if (bg6 > 16)
-{
-  bg6 = 4;
-    lim6x = 0;
-}
-
-
-if (bg7 == 4)
-{
-var bgrand7 = Math.round(getRandomArbitrary(240, 256));
-bgrem7 = bgrand7;
-bgy7 = bgrand7;
-}
-sparkbggenerator(bg7, bgy7, bgrem7, lim7x);
-bg7++;
-lim7x = currlim;
-currlim = 0;
-if (bg7 > 16)
-{
-  bg7 = 4;
-    lim7x = 0;
-}
-
-if (bg8 == 4)
-{
-var bgrand8 = Math.round(getRandomArbitrary(240, 256));
-bgrem8 = bgrand8;
-bgy8 = bgrand8;
-}
-sparkbggenerator(bg8, bgy8, bgrem8, lim8x);
-bg8++;
-lim8x = currlim;
-currlim = 0;
-if (bg8 > 16)
-{
-  bg8 = 4;
-    lim8x = 0;
-}  
-  // #zzz
-
-//MAGICK
-
-
-if (dark1 == 3)
-{
-darkrand1 = Math.round(getRandomArbitrary(241, 254));
-
-for (g = 1; g < 9; g++)
-{
-var morph = "darkrand" + g.toString();
-if
-(darkrand1 == (morph + 1) || darkrand1 == (morph - 1) ||
-  darkrand1 == (morph + 16) || darkrand1 == (morph - 16) || darkrand1 == ((morph + 16)+1) || darkrand1 == ((morph + 16)-1) || darkrand1 == ((morph - 16)+1) || darkrand1 == ((morph - 16)-1) ||
-  darkrand1 == (morph + 2) || darkrand1 == (morph - 2) ||
-  darkrand1 == (morph + 32) || darkrand1 == (morph - 32) || darkrand1 == ((morph + 16)+2) || darkrand1 == ((morph + 16)-2) || darkrand1 == ((morph - 16)+2) || darkrand1 == ((morph - 16)-2))
-
-darkrand1 = Math.round(getRandomArbitrary(241, 254));
-}
-
-
-darkrem1 = darkrand1;
-darky1 = darkrand1;
-}
-sparkdarkgenerator(dark1, darky1, darkrem1);
-dark1++;
-if (dark1 > 14)
-{
-  dark1 = 3
-}
-
-
-if (dark2 == 3)
-{
-darkrand2 = Math.round(getRandomArbitrary(241, 254));
-
-for (g = 1; g < 9; g++)
-{
-var morph = "darkrand" + g.toString();
-if
-(darkrand2 == (morph + 1) || darkrand2 == (morph - 1) ||
-  darkrand2 == (morph + 16) || darkrand2 == (morph - 16) || darkrand2 == ((morph + 16)+1) || darkrand2 == ((morph + 16)-1) || darkrand2 == ((morph - 16)+1) || darkrand2 == ((morph - 16)-1) ||
-  darkrand2 == (morph + 2) || darkrand2 == (morph - 2) ||
-  darkrand2 == (morph + 32) || darkrand2 == (morph - 32) || darkrand2 == ((morph + 16)+2) || darkrand2 == ((morph + 16)-2) || darkrand2 == ((morph - 16)+2) || darkrand2 == ((morph - 16)-2))
-
-darkrand2 = Math.round(getRandomArbitrary(241, 254));
-}
-
-darkrem2 = darkrand2;
-darky2 = darkrand2;
-}
-sparkdarkgenerator(dark2, darky2, darkrem2);
-dark2++;
-if (dark2 > 14)
-{
-  dark2 = 3;
-}
-
-
-if (dark3 == 3)
-{
-darkrand3 = Math.round(getRandomArbitrary(241, 254));
-for (g = 1; g < 9; g++)
-{
-var morph = "darkrand" + g.toString();
-if
-(darkrand3 == (morph + 1) || darkrand3 == (morph - 1) ||
-  darkrand3 == (morph + 16) || darkrand3 == (morph - 16) || darkrand3 == ((morph + 16)+1) || darkrand3 == ((morph + 16)-1) || darkrand3 == ((morph - 16)+1) || darkrand3 == ((morph - 16)-1) ||
-  darkrand3 == (morph + 2) || darkrand3 == (morph - 2) ||
-  darkrand3 == (morph + 32) || darkrand3 == (morph - 32) || darkrand3 == ((morph + 16)+2) || darkrand3 == ((morph + 16)-2) || darkrand3 == ((morph - 16)+2) || darkrand3 == ((morph - 16)-2))
-
-darkrand3 = Math.round(getRandomArbitrary(241, 254));
-}
-
-
-darkrem3 = darkrand3;
-darky3 = darkrand3;
-}
-sparkdarkgenerator(dark3, darky3, darkrem3);
-dark3++;
-if (dark3 > 14)
-{
-  dark3 = 3;
-}
-
-
-if (dark4 == 3)
-{
-darkrand4 = Math.round(getRandomArbitrary(241, 254));
-
-for (g = 1; g < 9; g++)
-{
-var morph = "darkrand" + g.toString();
-if
-(darkrand4 == (morph + 1) || darkrand4 == (morph - 1) ||
-  darkrand4 == (morph + 16) || darkrand4 == (morph - 16) || darkrand4 == ((morph + 16)+1) || darkrand4 == ((morph + 16)-1) || darkrand4 == ((morph - 16)+1) || darkrand4 == ((morph - 16)-1) ||
-  darkrand4 == (morph + 2) || darkrand4 == (morph - 2) ||
-  darkrand4 == (morph + 32) || darkrand4 == (morph - 32) || darkrand4 == ((morph + 16)+2) || darkrand4 == ((morph + 16)-2) || darkrand4 == ((morph - 16)+2) || darkrand4 == ((morph - 16)-2))
-
-darkrand4 = Math.round(getRandomArbitrary(241, 254));
-}
-
-
-darkrem4 = darkrand4;
-darky4 = darkrand4;
-}
-sparkdarkgenerator(dark4, darky4, darkrem4);
-dark4++;
-if (dark4 > 14)
-{
-  dark4 = 3;
-}
-
-
-if (dark5 == 3)
-{
-darkrand5 = Math.round(getRandomArbitrary(241, 254));
-for (g = 1; g < 9; g++)
-{
-var morph = "darkrand" + g.toString();
-if
-(darkrand5 == (morph + 1) || darkrand5 == (morph - 1) ||
-  darkrand5 == (morph + 16) || darkrand5 == (morph - 16) || darkrand5 == ((morph + 16)+1) || darkrand5 == ((morph + 16)-1) || darkrand5 == ((morph - 16)+1) || darkrand5 == ((morph - 16)-1) ||
-  darkrand5 == (morph + 2) || darkrand5 == (morph - 2) ||
-  darkrand5 == (morph + 32) || darkrand5 == (morph - 32) || darkrand5 == ((morph + 16)+2) || darkrand5 == ((morph + 16)-2) || darkrand5 == ((morph - 16)+2) || darkrand5 == ((morph - 16)-2))
-
-darkrand5 = Math.round(getRandomArbitrary(241, 254));
-}
-
-darkrem5 = darkrand5;
-darky5 = darkrand5;
-}
-sparkdarkgenerator(dark5, darky5, darkrem5);
-dark5++;
-if (dark5 > 14)
-{
-  dark5 = 3;
-}
-
-
-if (dark6 == 3)
-{
-darkrand6 = Math.round(getRandomArbitrary(241, 254));
-
-for (g = 1; g < 9; g++)
-{
-var morph = "darkrand" + g.toString();
-if
-(darkrand6 == (morph + 1) || darkrand6 == (morph - 1) ||
-  darkrand6 == (morph + 16) || darkrand6 == (morph - 16) || darkrand6 == ((morph + 16)+1) || darkrand6 == ((morph + 16)-1) || darkrand6 == ((morph - 16)+1) || darkrand6 == ((morph - 16)-1) ||
-  darkrand6 == (morph + 2) || darkrand6 == (morph - 2) ||
-  darkrand6 == (morph + 32) || darkrand6 == (morph - 32) || darkrand6 == ((morph + 16)+2) || darkrand6 == ((morph + 16)-2) || darkrand6 == ((morph - 16)+2) || darkrand6 == ((morph - 16)-2))
-
-darkrand6 = Math.round(getRandomArbitrary(241, 254));
-}
-
-darkrem6 = darkrand6;
-darky6 = darkrand6;
-}
-sparkdarkgenerator(dark6, darky6, darkrem6);
-dark6++;
-if (dark6 > 14)
-{
-  dark6 = 3;
-}
-
-
-if (dark7 == 3)
-{
-darkrand7 = Math.round(getRandomArbitrary(241, 254));
-
-for (g = 1; g < 9; g++)
-{
-var morph = "darkrand" + g.toString();
-if
-(darkrand7 == (morph + 1) || darkrand7 == (morph - 1) ||
-  darkrand7 == (morph + 16) || darkrand7 == (morph - 16) || darkrand7 == ((morph + 16)+1) || darkrand7 == ((morph + 16)-1) || darkrand7 == ((morph - 16)+1) || darkrand7 == ((morph - 16)-1) ||
-  darkrand7 == (morph + 2) || darkrand7 == (morph - 2) ||
-  darkrand7 == (morph + 32) || darkrand7 == (morph - 32) || darkrand7 == ((morph + 16)+2) || darkrand7 == ((morph + 16)-2) || darkrand7 == ((morph - 16)+2) || darkrand7 == ((morph - 16)-2))
-
-darkrand7 = Math.round(getRandomArbitrary(241, 254));
-}
-
-darkrem7 = darkrand7;
-darky7 = darkrand7;
-}
-sparkdarkgenerator(dark7, darky7, darkrem7);
-dark7++;
-if (dark7 > 14)
-{
-  dark7 = 3;
-}
-
-if (dark8 == 3)
-{
-  darkrand8 = Math.round(getRandomArbitrary(241, 254));
-
-for (g = 1; g < 9; g++)
-{
-var morph = "darkrand" + g.toString();
-if
-(darkrand8 == (morph + 1) || darkrand8 == (morph - 1) ||
-  darkrand8 == (morph + 16) || darkrand8 == (morph - 16) || darkrand8 == ((morph + 16)+1) || darkrand8 == ((morph + 16)-1) || darkrand8 == ((morph - 16)+1) || darkrand8 == ((morph - 16)-1) ||
-  darkrand8 == (morph + 2) || darkrand8 == (morph - 2) ||
-  darkrand8 == (morph + 32) || darkrand8 == (morph - 32) || darkrand8 == ((morph + 16)+2) || darkrand8 == ((morph + 16)-2) || darkrand8 == ((morph - 16)+2) || darkrand8  == ((morph - 16)-2))
-
-darkrand8 = Math.round(getRandomArbitrary(241, 254));
-}
-darkrem8 = darkrand8;
-darky8 = darkrand8;
-}
-sparkdarkgenerator(dark8, darky8, darkrem8);
-dark8++;
-if (dark8 > 14)
-{
-  dark8 = 3;
-}
-}
-// endoflog
-// darkZZZ
-/*
-if (dark1z == 3)
-{
-var darkrandz = Math.round(getRandomArbitrary(241, 254));
-darkrem1z = darkrandz;
-darky1z = darkrandz;
-}
-sparkdarkgenerator(dark1z, darky1z, darkrem1z);
-dark1z++;
-if (dark1z > 26)
-{
-  dark1z = 3
-}
-
-
-if (dark2z == 3)
-{
-var darkrand2z = Math.round(getRandomArbitrary(241, 254));
-darkrem2z = darkrand2z;
-darky2z = darkrand2z;
-}
-sparkdarkgenerator(dark2z, darky2z, darkrem2z);
-dark2z++;
-if (dark2z > 26)
-{
-  dark2z = 3;
-}
-
-
-if (dark3z == 3)
-{
-var darkrand3z = Math.round(getRandomArbitrary(241, 254));
-darkrem3z = darkrand3z;
-darky3z = darkrand3z;
-}
-sparkdarkgenerator(dark3z, darky3z, darkrem3z);
-dark3z++;
-if (dark3z > 26)
-{
-  dark3z = 3;
-}
-
-
-if (dark4z == 3)
-{
-var darkrand4z = Math.round(getRandomArbitrary(241, 254));
-darkrem4z = darkrand4z;
-darky4z = darkrand4z;
-}
-sparkdarkgenerator(dark4z, darky4z, darkrem4z);
-dark4z++;
-if (dark4z > 26)
-{
-  dark4z = 3;
-}
-
-
-if (dark5z == 3)
-{
-var darkrand5z = Math.round(getRandomArbitrary(241, 254));
-darkrem5z = darkrand5z;
-darky5z = darkrand5z;
-}
-sparkdarkgenerator(dark5z, darky5z, darkrem5z);
-dark5z++;
-if (dark5z > 26)
-{
-  dark5z = 3;
-}
-
-
-if (dark6z == 3)
-{
-var darkrand6z = Math.round(getRandomArbitrary(241, 254));
-darkrem6z = darkrand6z;
-darky6z = darkrand6z;
-}
-sparkdarkgenerator(dark6z, darky6z, darkrem6z);
-dark6z++;
-if (dark6z > 26)
-{
-  dark6z = 3;
-}
-
-
-if (dark7z == 3)
-{
-var darkrand7z = Math.round(getRandomArbitrary(241, 254));
-darkrem7z = darkrand7z;
-darky7z = darkrand7z;
-}
-sparkdarkgenerator(dark7z, darky7z, darkrem7z);
-dark7z++;
-if (dark7z > 26)
-{
-  dark7z = 3;
-}
-
-if (dark8z == 3)
-{
-var darkrand8z = Math.round(getRandomArbitrary(241, 254));
-darkrem8z = darkrand8z;
-darky8z = darkrand8z;
-}
-sparkdarkgenerator(dark8z, darky8z, darkrem8z);
-dark8z++;
-if (dark8z > 26)
-{
-  dark8z = 3;
-}*/
-//HOLD WOOD HOLY PIT
-
-if (slowwood == 0)
-{
-	
-  		for (var i = (256 + holdlogsx); i < (272 + holdlogsx); i ++) {
-		
-		
-	between = Math.round(getRandomArbitrary(11, 18));
-		
-		
-		holdwoodsy = between;
-		holdwoodsyarr0[calarr1] = holdwoodsy;
-		
-		
-		fireplaceArray[i] = holdwoodsyarr0[calarr1];
-	
-		calarr1++;
-	} 
-	calarr1 = 0;	
-	
-  		for (var i = (240 + holdlogsx); i < (256 + holdlogsx); i ++) {
-		
-		
-	between = Math.round(getRandomArbitrary(11, 18));
-		
-		
-		holdwoodsy = between;
-		holdwoodsyarr[calarr1] = holdwoodsy;
-		
-		
-		fireplaceArray[i] = holdwoodsyarr[calarr1];
-	
-		calarr1++;
-	} 
-	calarr1 = 0;
-  for (var i = (226 + holdlogsx); i < (237 + holdlogsx); i ++) {
-		
-		
-	between = Math.round(getRandomArbitrary(11, 18));
-		
-		
-		holdwoodsy = between;
-		holdwoodsyarr2[calarr1] = holdwoodsy;
-		
-		
-		fireplaceArray[i] = holdwoodsyarr2[calarr1];
-	
-		calarr1++;
-	} 
-	calarr1 = 0;
-	for (var i = (212 + holdlogsx); i < (222 + holdlogsx); i ++) {
-		
-		
-	between = Math.round(getRandomArbitrary(11, 18));
-		
-		
-		holdwoodsy = between;
-		holdwoodsyarr3[calarr1] = holdwoodsy;
-		
-		
-		fireplaceArray[i] = holdwoodsyarr3[calarr1];
-	
-		calarr1++;
-	} 
-		calarr1 = 0;
-		
-	for (var i = (200 + holdlogsx); i < (206 + holdlogsx); i ++) {
-		
-		
-	between = Math.round(getRandomArbitrary(11, 18));
-		
-		
-		holdwoodsy = between;
-		holdwoodsyarr4[calarr1] = holdwoodsy;
-		
-		
-		fireplaceArray[i] = holdwoodsyarr4[calarr1];
-	
-		calarr1++;
-	} 
-		calarr1 = 0;		
-
-	for (var i = (185 + holdlogsx); i < (188 + holdlogsx); i ++) {
-		
-		
-	between = Math.round(getRandomArbitrary(11, 18));
-		
-		
-		holdwoodsy = between;
-		holdwoodsyarr5[calarr1] = holdwoodsy;
-		
-		
-		fireplaceArray[i] = holdwoodsyarr5[calarr1];
-	
-		calarr1++;
-	} 
-		calarr1 = 0;			
-		
-		
-  		for (var i = (240 + holdlogsx); i < (254 + holdlogsx); i ++) {
-		
-		
-	between = Math.round(getRandomArbitrary(28, 36));
-		
-		
-		holdwoodsy = between;
-		loglight1[calarr1] = holdwoodsy;
-		
-		
-		fireplaceArray[i] = loglight1[calarr1];
-	
-		calarr1++;
-	} 
-	calarr1 = 0;	
-		
-	for (var i = (228 + holdlogsx); i < (237 + holdlogsx); i ++) {
-		
-		
-	between = Math.round(getRandomArbitrary(28, 36));
-		
-		
-		holdwoodsy = between;
-		loglight2[calarr1] = holdwoodsy;
-		
-		
-		fireplaceArray[i] = loglight2[calarr1];
-	
-		calarr1++;
-	} 
-	calarr1 = 0;	
-	for (var i = (217 + holdlogsx); i < (220 + holdlogsx); i ++) {
-		
-		
-	between = Math.round(getRandomArbitrary(28, 36));
-		
-		
-		holdwoodsy = between;
-		loglight3[calarr1] = holdwoodsy;
-		
-		
-		fireplaceArray[i] = loglight3[calarr1];
-	
-		calarr1++;
-	} 
-		calarr1 = 0;	
-		
-		
-		
-		
-		
-		
-		
-		
-}
-if (slowwood < 15)
-{
-	  		for (var i = (256 + holdlogsx); i < (272 + holdlogsx); i ++) {
-
-
-		
-		fireplaceArray[i] = holdwoodsyarr0[calarr1];
-	
-		calarr1++;
-	} 
-		calarr1 = 0;
-  		for (var i = (240 + holdlogsx); i < (256 + holdlogsx); i ++) {
-
-
-		
-		fireplaceArray[i] = holdwoodsyarr[calarr1];
-	
-		calarr1++;
-	} 
-		calarr1 = 0;
-  for (var i = (226 + holdlogsx); i < (237 + holdlogsx); i ++) {
-		
-
-		
-		fireplaceArray[i] = holdwoodsyarr2[calarr1];
-	
-		calarr1++;
-	} 
-		calarr1 = 0;
-	for (var i = (212 + holdlogsx); i < (222 + holdlogsx); i ++) {
-		
-
-		
-		fireplaceArray[i] = holdwoodsyarr3[calarr1];
-	
-		calarr1++;
-	} 
-		calarr1 = 0;
-		
-for (var i = (200 + holdlogsx); i < (206 + holdlogsx); i ++) {
-		
-		
-	
-		fireplaceArray[i] = holdwoodsyarr4[calarr1];
-	
-		calarr1++;
-	} 
-		calarr1 = 0;		
-
-for (var i = (185 + holdlogsx); i < (188 + holdlogsx); i ++) {
-		
-		
-	
-		fireplaceArray[i] = holdwoodsyarr5[calarr1];
-	
-		calarr1++;
-	} 
-		calarr1 = 0;				
-		
-		
-
-  		for (var i = (240 + holdlogsx); i < (254 + holdlogsx); i ++) {
-
-
-		
-		fireplaceArray[i] = loglight1[calarr1];
-	
-		calarr1++;
-	} 
-		calarr1 = 0;	
-for (var i = (228 + holdlogsx); i < (237 + holdlogsx); i ++) {
-		
-
-		
-		fireplaceArray[i] = loglight2[calarr1];
-	
-		calarr1++;
-	} 
-		calarr1 = 0;		
-		
-for (var i = (217 + holdlogsx); i < (220 + holdlogsx); i ++) {
-		
-
-		
-		fireplaceArray[i] = loglight3[calarr1];
-	
-		calarr1++;
-	} 
-		calarr1 = 0;		
-		
-}
-
-
-
-
-reallyslowwood++;
-
-if (reallyslowwood < 5)
-{
-slowwood = 1;
-}
-if (reallyslowwood == 5)
-{
-slowwood=0;
-reallyslowwood=0;
-}
-
-if (startfire == 1) {
-// SPARKz
-if (sparks1 == 0)
-{
-var sparks1rand = Math.round(getRandomArbitrary(240, 256));
-rememberburn1 = sparks1rand;
-sparky1 = sparks1rand;
-}
-sparkgenerator(sparks1, sparky1, rememberburn1);
-sparks1++;
-if (sparks1 > 4)
-{
-  sparks1 = 0;
-}
-
-if (sparks2 == 0)
-{
-var sparks2rand = Math.round(getRandomArbitrary(240, 256));
-rememberburn2 = sparks2rand;
-sparky2 = sparks2rand;
-}
-sparkgenerator(sparks2, sparky2, rememberburn2);
-sparks2++;
-if (sparks2 > 4)
-{
-  sparks2 = 0;
-}
-
-
-if (sparks3 == 0)
-{
-var sparks3rand = Math.round(getRandomArbitrary(240, 256));
-rememberburn3 = sparks3rand;
-sparky3 = sparks3rand;
-}
-sparkgenerator(sparks3, sparky3, rememberburn3);
-sparks3++;
-if (sparks3 > 4)
-{
-  sparks3 = 0;
-}
-if (sparks4 == 0)
-{
-var sparks4rand = Math.round(getRandomArbitrary(240, 256));
-rememberburn4 = sparks4rand;
-sparky4 = sparks4rand;
-}
-sparkgenerator(sparks4, sparky4, rememberburn4);
-sparks4++;
-if (sparks4 > 4)
-{
-  sparks4 = 0;
-}
-
-if (sparks5 == 0)
-{
-var sparks5rand = Math.round(getRandomArbitrary(240, 256));
-rememberburn5 = sparks5rand;
-sparky5 = sparks5rand;
-}
-sparkgenerator(sparks5, sparky5, rememberburn5);
-sparks5++;
-if (sparks5 > 4)
-{
-  sparks5 = 0;
-}
-
-if (sparks6 == 0)
-{
-var sparks6rand = Math.round(getRandomArbitrary(240, 256));
-rememberburn6 = sparks6rand;
-sparky6 = sparks6rand;
-}
-sparkgenerator(sparks6, sparky6, rememberburn6);
-sparks6++;
-if (sparks6 > 4)
-{
-  sparks6 = 0;
-}
-if (sparks7 == 0)
-{
-var sparks7rand = Math.round(getRandomArbitrary(240, 256));
-rememberburn7 = sparks7rand;
-sparky7 = sparks7rand;
-}
-sparkgenerator(sparks7, sparky7, rememberburn7);
-sparks7++;
-if (sparks7 > 4)
-{
-  sparks7 = 0;
-}
-
-if (sparks8 == 0)
-{
-var sparks8rand = Math.round(getRandomArbitrary(240, 256));
-rememberburn8 = sparks8rand;
-sparky8 = sparks8rand;
-}
-sparkgenerator(sparks8, sparky8, rememberburn8);
-sparks8++;
-if (sparks8 > 4)
-{
-  sparks8 = 0;
-}
-}
-
-
-
-}} //endoflog
-
-
-
-var breaky = 0;
-var breakym = 0;
-var breakyadjust = 160;
-var breakr = 0;
-var breakl = 0;
-var maxz = Math.round(getRandomArbitrary(2, 2));
-
-function fireDepth() {
-
-
-if ( forrev == 0)
-{
-if (tr1 < maxz)	
-{
-tr1++;
-}
-if (tr2 < maxz && tr1 == maxz)
-{
-tr2++;
-}
-if (tr3 < maxz && tr2 == maxz)
-{
-tr3++;
-}
-if (tr4 < maxz && tr3 == maxz)
-{
-tr4++;
-}
-if (tr4 == maxz)
-forrev = 1;
-}
-// reverse
-
-// # zzzz he
-
-if ( forrev == 1)
-{
-if (tr5 < maxz)	
-{
-tr5++;
-}
-if (tr6 < maxz && tr5 == maxz)
-{
-tr6++;
-}
-if (tr7 < maxz && tr6 == maxz)
-{
-tr7++;
-}
-if (tr8 < maxz && tr7 == maxz)
-{
-tr8++;
-}
-if (tr8 == maxz)
-forrev = 3;
-}
-// reverse
-
-// # zzzz he3
-
-if ( forrev == 3)
-{
-if (tr9 < maxz)	
-{
-tr9++;
-}
-if (tr10 < maxz && tr9 == maxz)
-{
-tr10++;
-}
-if (tr11 < maxz && tr10 == maxz)
-{
-tr11++;
-}
-if (tr12 < maxz && tr11 == maxz)
-{
-tr12++;
-}
-if (tr12 == maxz)
-forrev = 5;
-}
-
-// # zzzz herf
-
-if ( forrev == 5)
-{
-if (tr13 < maxz)	
-{
-tr13++;
-}
-if (tr14 < maxz && tr13 == maxz)
-{
-tr14++;
-}
-if (tr15 < maxz && tr14 == maxz)
-{
-tr15++;
-}
-if (tr16 < maxz && tr15 == maxz)
-{
-tr16++;
-}
-if (tr16 == maxz)
-forrev = 6;
-}
-// reversesuper
-if (forrev == 6)
-{
-if (tr1 > 0)	
-{
-tr1--;
-}
-if (tr2 > 0 && tr1 == 0)
-{
-tr2--;
-}
-if (tr3 > 0 && tr2 == 0)
-{
-tr3--;
-}
-if (tr4 > 0 && tr3 == 0)
-{
-tr4--;
-}
-if (tr4 == 0)
-forrev = 7;
-}
-
-// reversesuper
-if (forrev == 7)
-{
-if (tr5 > 0)	
-{
-tr5--;
-}
-if (tr6 > 0 && tr5 == 0)
-{
-tr6--;
-}
-if (tr7 > 0 && tr6 == 0)
-{
-tr7--;
-}
-if (tr8 > 0 && tr7 == 0)
-{
-tr8--;
-}
-if (tr8 == 0)
-forrev = 8;
-}
-
-// reversesuper
-if (forrev == 8)
-{
-if (tr9 > 0)	
-{
-tr9--;
-}
-if (tr10 > 0 && tr9 == 0)
-{
-tr10--;
-}
-if (tr11 > 0 && tr10 == 0)
-{
-tr11--;
-}
-if (tr12 > 0 && tr11 == 0)
-{
-tr12--;
-}
-if (tr12 == 0)
-forrev = 9;
-}
-
-if (forrev == 9)
-{
-if (tr13 > 0)	
-{
-tr13--;
-}
-if (tr14 > 0 && tr13 == 0)
-{
-tr14--;
-}
-if (tr15 > 0 && tr14 == 0)
-{
-tr15--;
-}
-if (tr16 > 0 && tr15 == 0)
-{
-tr16--;
-}
-if (tr16 == 0)
-forrev = 0;
-}
-
-
-}
-var lightswitch = 0;
-var lightmodz= 0;
-function lighting() {
-	lightmodz++;
-	if (lightmodz > 320)
-	lightmodz = 0;
-	if ( lightswitch == 0)
-	{
-    if (lightmodz == 320)
-	lights--;
-	if (lights < -5)
-	lightswitch = 1;
-	}
-	if ( lightswitch == 1)
-	{
-    if (lightmodz == 320)
-	lights++;
-	if (lights > 5)
-	lightswitch = 0;
-	}
-	}
-function fireplaceDraw() {
-	
-
-
- breakr = 0;
-	for (var x = 0; x < 16; x ++) {
-	  breaky = 0;
-	  breakl = 0;
-		for (var y = 0; y < 16; y ++) {
-			var id = fireplaceArray[(y << 4) + x];
-			var id2 = fireplaceArray[(y << 4) + x];
-		
-           sidek = 0;
-
-
-
-            
-
-
-            var woodshade1 = 24 + 0;
-            var woodsat1 = "50%";
-            var woodbri1= (6  + lights) + "%";		
-   
-            var woodshade2 = 25 + 0;
-            var woodsat2= "51%";
-            var woodbri2= (7 + lights) + "%";		
-
-            var woodshade3 = 29 + 0;
-            var woodsat3 = "52%";
-            var woodbri3= (8 + lights) + "%";		
-
-
-            var woodshade4 = 35 + 0;
-            var woodsat4 = "53%";
-            var woodbri4= (9 + lights) + "%";		         
-            
-            
-               var woodshade1x = 24 + 0;
-            var woodsat1x = "54%";
-            var woodbri1x= (12  + lights) + "%";		
-   
-            var woodshade2x = 25 + 0;
-            var woodsat2x= "55%";
-            var woodbri2x= (13 + lights) + "%";		
-
-            var woodshade3x = 29 + 0;
-            var woodsat3x = "56%";
-            var woodbri3x= (14 + lights) + "%";		
-
-
-            var woodshade4x = 35 + 0;
-            var woodsat4x = "57%";
-            var woodbri4x= (15 + lights) + "%";		                
-            
-            
-            // front log
-            
-            var woodshade1z = 24 + 0;
-            var woodsat1z = "50%";
-            var woodbri1z= (18 + lights) + "%";		
-   
-            var woodshade2z = 25 + 0;
-            var woodsat2z= "51%";
-            var woodbri2z= (19 + lights) + "%";		
-
-            var woodshade3z = 29 + 0;
-            var woodsat3z = "52%";
-            var woodbri3z= (20 + lights) + "%";		
-
-
-            var woodshade4z = 35 + 0;
-            var woodsat4z = "53%";
-            var woodbri4z= (21 + lights) + "%";		         
-            
-            
-               var woodshade1xz = 24 + 0;
-            var woodsat1xz = "54%";
-            var woodbri1xz= (22 + lights) + "%";		
-   
-            var woodshade2xz = 25 + 0;
-            var woodsat2xz= "55%";
-            var woodbri2xz= (23 + lights) + "%";		
-
-            var woodshade3xz = 29 + 0;
-            var woodsat3xz = "56%";
-            var woodbri3xz= (24 + lights) + "%";		
-
-
-            var woodshade4xz = 35 + 0;
-            var woodsat4xz = "57%";
-            var woodbri4xz= (25 + lights) + "%";		          
-            
-            
-			var hues = ['0', '21', '20', '10', '0', '29', '34', '', '', '', '', woodshade1x, woodshade2x, woodshade3x, woodshade4x, woodshade1, woodshade2, woodshade3, woodshade4, shade8, shade1, shade2, shade3, shade4, shade5, shade6,shade7, shade9, woodshade1xz, woodshade2xz, woodshade3xz, woodshade4xz, woodshade1z, woodshade2z, woodshade3z, woodshade4z, '22', '19','22', '22', '22', '22', '22', '24', '22', '19','23', '24', '22', '18', '25']; 
-			var sats = ['0%', '100%', '100%', '100%', '0%', '100%', '100%', '', '', '', '', woodsat1x, woodsat2x,woodsat3x,woodsat4x,  woodsat1, woodsat2, woodsat3, woodsat4, sat8, sat1, sat2, sat3, sat4, sat5, sat6,sat7, sat9,  woodsat1xz, woodsat2xz,woodsat3xz,woodsat4xz,  woodsat1z, woodsat2z, woodsat3z, woodsat4z, '51%', '58%' ,'54%' , '56%', '55%','55%','55%', '55%', '51%', '58%' ,'54%' , '56%', '51%','55%', '55%'];
-		  fireplaceColors = ['0%', '0%', '0%', '0%', '0%', '50%', '50%', '', '', '', '', woodbri1x, woodbri2x, woodbri3x, woodbri4x, woodbri1, woodbri2, woodbri3, woodbri4, bri8, bri1, bri2, bri3, bri4, bri5, bri6,bri7, bri9,  woodbri1xz, woodbri2xz, woodbri3xz, woodbri4xz, woodbri1z, woodbri2z, woodbri3z, woodbri4z, '14%', '8%', '4%', '11%', '4%', '4%','4%', '4%', '7%', '4%', '6%', '5%', '6%', '4%', '4%'];
-		  modalpha=['0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1'];
-      var modhue = "";
-      var modsats = "";
-      var modlight = "";
-      var originalhue = hues[id];
-      var originalsats = sats[id];
-      var alphacast = modalpha[id];
-      var originallightness = fireplaceColors[id];
-		  modhue = originalhue;
-		  modsats = originalsats;
-      modlight = originallightness;		  
-      /*
-      if (y == 0)
-      {
-      var modl = originallightness.replace("%", "");
-      var modl2 = parseInt(modl) - 30;
-		  modlight = modl2.toString() + "%";
-      }
-      if (y == 1)
-      {
-      var modl = originallightness.replace("%", "");
-      var modl2 = parseInt(modl) - 24;
-		  modlight = modl2.toString() + "%";
-      }
-      if (y == 2)
-      {
-      var modl = originallightness.replace("%", "");
-      var modl2 = parseInt(modl) - 18;
-		  modlight = modl2.toString() + "%";
-      }
-      if (y == 3)
-      {
-      var modl = originallightness.replace("%", "");
-      var modl2 = parseInt(modl) - 12;
-		  modlight = modl2.toString() + "%";
-      }
-      if (y == 4)
-      {
-      var modl = originallightness.replace("%", "");
-      var modl2 = parseInt(modl) - 6;
-		  modlight = modl2.toString() + "%";
-      }*/
- /*
-  
-      if (y == breaky)
-      { 
-
-           if (breaky > -1)
-      {
-
-      modhue = originalhue  - (72 - (y * 4));
-      modsats = originalsats;
-      var modl = originallightness.replace("%", "");
-      var modl2 = parseInt(modl);
-		  modlight = modl2.toString() + "%";
-      }
-      if (breaky < 7)
-      {
-
-      modhue = modhue;
-      modsats = originalsats;
-      var modl = originallightness.replace("%", "");
-      var modl2 = parseInt(modl) - (52 - breaky * 8);
-		  modlight = modl2.toString() + "%";
-      }	  
-	   	}	
-	   if (x < 3 && breaky > 9)
-      {
-
-      modhue = originalhue  - (32 - (x * 2));
-      modsats = originalsats;
-      var modl = originallightness.replace("%", "");
-      var modl2 = parseInt(modl);
-		  modlight = modl2.toString() + "%";
-      }
-	   if (x > 13 && breaky > 9)
-      {
-
-      modhue = originalhue  - ((x * 2));
-      modsats = originalsats;
-      var modl = originallightness.replace("%", "");
-      var modl2 = parseInt(modl);
-		  modlight = modl2.toString() + "%";
-      }	   	
-      
-
-	     */
-
-			ctx.fillStyle = 'hsla(' + modhue+	','+ modsats +', ' + modlight + ',' + alphacast + ')';
-			ctx.fillRect(x * poligon, y * poligon, poligon + 1, poligon + 1);
-		    
-     
-		}
-
-	}
-}
-/*
-x = player.x / player.width * canvas.width;
-y = player.y / player.height * canvas.height;
-*/
-
-
-window.getDevicePixelRatio = function () {
-    var ratio = 1;
-    // To account for zoom, change to use deviceXDPI instead of systemXDPI
-    if (window.screen.systemXDPI !== undefined && window.screen.logicalXDPI       !== undefined && window.screen.systemXDPI > window.screen.logicalXDPI) {
-        // Only allow for values > 1
-        ratio = window.screen.systemXDPI / window.screen.logicalXDPI;
-    }
-    else if (window.devicePixelRatio !== undefined) {
-        ratio = window.devicePixelRatio;
-    }
-    return ratio;
-};
-
-
-function drawLoop() {
-var abswidth = window.innerWidth;
-var absheight = window.innerHeight;
-var wi = window.screen.width;
-var he = window.screen.height;
-
-//start horizontal
-if (absheight < abswidth)
-{
-poligon = absheight / 16;
-
-
-
-ctx.canvas.width = absheight;
-ctx.canvas.height = absheight;
-
-
-
-//ctx.clearRect(0, 0, display.width, display.height);
-//document.getElementById('pixelsvg').setAttribute("height", wi);
-
-//var c = ' crt';
-//cnv.className = cnv.className + c;
-}
-
-//start vertical
-
-if (absheight > abswidth)
-{
-
-
-ctx.canvas.width = abswidth;
-ctx.canvas.height = abswidth;
-poligon = abswidth / 16;
-
-
-//var c = ' crt';
-//cnv.className = cnv.className + c;
-}
-  
-
-
-
-	fireplaceMove();
-	fireplaceDraw();
-
-	
-
+  <canvas id="canvas"></canvas>
+
+  <script id="fs" type="x-shader/x-fragment">
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision highp float;
+#endif
+
+uniform vec2 resolution;
+uniform float time;
+uniform vec4 mouse;
+uniform vec4 date;
+uniform int pointerCount;
+uniform vec3 pointers[10];
+float anim = 0.1;
+
+//uniform vec3      resolution;           // viewport resolution (in pixels)
+uniform float     iTime;                 // shader playback time (in seconds)
+uniform float     iTimeDelta;            // render time (in seconds)
+uniform float     iFrameRate;            // shader frame rate
+uniform int       iFrame;                // shader playback frame
+uniform float     iChannelTime[4];       // channel playback time (in seconds)
+uniform vec3      iChannelResolution[4]; // channel resolution (in pixels)
+//uniform vec4      mouse;                // mouse pixel coords. xy: current (if MLB down), zw: click
+uniform sampler2D iChannel0, iChannel1, iChannel2, iChannel3;        // input channel. XX = 2D/Cube
+//uniform vec4      date;                 // (year, month, day, time in seconds)
+uniform float     iSampleRate;           // sound sample rate (i.e., 44100)
+uniform float iBlockOffset;
 
 //
+// Description : Array and textureless GLSL 2D/3D/4D simplex
+//							 noise functions.
+//			Author : Ian McEwan, Ashima Arts.
+//	Maintainer : ijm
+//		 Lastmod : 20110822 (ijm)
+//		 License : Copyright (C) 2011 Ashima Arts. All rights reserved.
+//							 Distributed under the MIT License. See LICENSE file.
+//							 https://github.com/ashima/webgl-noise
+//
 
-
-};
-
-fps = 1;
-
-var t;
-
-function frame() {
- //window.clearTimeout(t);
- //clearTimeout(t);
-setInterval(()=> {
-	ctx.clearRect(0, 0, display.width, display.height);
-	reqAniFrame(drawLoop);
-},100);
-
-
-
-
-
-  // Let the host app know
-  window.androidWallpaperInterface.drawFrame();
-
+vec3 mod289(vec3 x) {
+	return x - floor(x * (1.0 / 289.0)) * 289.0;
 }
 
+vec4 mod289(vec4 x) {
+	return x - floor(x * (1.0 / 289.0)) * 289.0;
+}
 
-function xpi() {
+vec4 permute(vec4 x) {
+		 return mod289(((x*34.0)+1.0)*x);
+}
 
+vec4 taylorInvSqrt(vec4 r)
+{
+	return 1.79284291400159 - 0.85373472095314 * r;
+}
+
+float snoise(vec3 v)
+	{
+	const vec2	C = vec2(1.0/6.0, 1.0/3.0) ;
+	const vec4	D = vec4(0.0, 0.5, 1.0, 2.0);
+
+// First corner
+	vec3 i	= floor(v + dot(v, C.yyy) );
+	vec3 x0 =	 v - i + dot(i, C.xxx) ;
+
+// Other corners
+	vec3 g = step(x0.yzx, x0.xyz);
+	vec3 l = 1.0 - g;
+	vec3 i1 = min( g.xyz, l.zxy );
+	vec3 i2 = max( g.xyz, l.zxy );
+
+	//	 x0 = x0 - 0.0 + 0.0 * C.xxx;
+	//	 x1 = x0 - i1	+ 1.0 * C.xxx;
+	//	 x2 = x0 - i2	+ 2.0 * C.xxx;
+	//	 x3 = x0 - 1.0 + 3.0 * C.xxx;
+	vec3 x1 = x0 - i1 + C.xxx;
+	vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y
+	vec3 x3 = x0 - D.yyy;			// -1.0+3.0*C.x = -0.5 = -D.y
+
+// Permutations
+	i = mod289(i);
+	vec4 p = permute( permute( permute(
+						 i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+					 + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))
+					 + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+
+// Gradients: 7x7 points over a square, mapped onto an octahedron.
+// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)
+	float n_ = 0.142857142857; // 1.0/7.0
+	vec3	ns = n_ * D.wyz - D.xzx;
+
+	vec4 j = p - 49.0 * floor(p * ns.z * ns.z);	//	mod(p,7*7)
+
+	vec4 x_ = floor(j * ns.z);
+	vec4 y_ = floor(j - 7.0 * x_ );		// mod(j,N)
+
+	vec4 x = x_ *ns.x + ns.yyyy;
+	vec4 y = y_ *ns.x + ns.yyyy;
+	vec4 h = 1.0 - abs(x) - abs(y);
+
+	vec4 b0 = vec4( x.xy, y.xy );
+	vec4 b1 = vec4( x.zw, y.zw );
+
+	//vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;
+	//vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;
+	vec4 s0 = floor(b0)*2.0 + 1.0;
+	vec4 s1 = floor(b1)*2.0 + 1.0;
+	vec4 sh = -step(h, vec4(0.0));
+
+	vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+	vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+
+	vec3 p0 = vec3(a0.xy,h.x);
+	vec3 p1 = vec3(a0.zw,h.y);
+	vec3 p2 = vec3(a1.xy,h.z);
+	vec3 p3 = vec3(a1.zw,h.w);
+
+//Normalise gradients
+	//vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+	vec4 norm = inversesqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+	p0 *= norm.x;
+	p1 *= norm.y;
+	p2 *= norm.z;
+	p3 *= norm.w;
+
+// Mix final noise value
+	vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+	m = m * m;
+	return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1),
+																dot(p2,x2), dot(p3,x3) ) );
+	}
+
+//////////////////////////////////////////////////////////////
+
+// PRNG
+// From https://www.shadertoy.com/view/4djSRW
+float prng(in vec2 seed) {
+	seed = fract (seed * vec2 (5.3983, 5.4427));
+	seed += dot (seed.yx, seed.xy + vec2 (21.5351, 14.3137));
+	return fract (seed.x * seed.y );
+}
+
+//////////////////////////////////////////////////////////////
+
+float PI = 3.1415926535897932384626433832795;
+
+
+float noiseStack(vec3 pos,int octaves,float falloff){
+	float noise = snoise(vec3(pos));
+	float off = 1.0;
+	if (octaves>1) {
+		pos *= 2.0;
+		off *= falloff;
+		noise = (1.0-off)*noise + off*snoise(vec3(pos));
+	}
+	if (octaves>2) {
+		pos *= 2.0;
+		off *= falloff;
+		noise = (1.0-off)*noise + off*snoise(vec3(pos));
+	}
+	if (octaves>3) {
+		pos *= 2.0;
+		off *= falloff;
+		noise = (1.0-off)*noise + off*snoise(vec3(pos));
+	}
+	return (1.0+noise)/2.0;
+}
+
+vec2 noiseStackUV(vec3 pos,int octaves,float falloff,float diff){
+	float displaceA = noiseStack(pos,octaves,falloff);
+	float displaceB = noiseStack(pos+vec3(3984.293,423.21,5235.19),octaves,falloff);
+	return vec2(displaceA,displaceB);
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+		float time = iTime + time;
+		vec2 resolution = resolution.xy;
+	vec2 drag = mouse.xy + sin(time);
+	vec2 offset =mouse.xy + cos(time);
+		//
+	float xpart = fragCoord.x/resolution.x;
+	float ypart = fragCoord.y/resolution.y;
+	//
+	float clip = 210.0;
+	float ypartClip = fragCoord.y/clip;
+	float ypartClippedFalloff = clamp(2.0-ypartClip,0.0,1.0);
+	float ypartClipped = min(ypartClip,1.0);
+	float ypartClippedn = 1.0-ypartClipped;
+	//
+	float xfuel = 1.0-abs(2.0*xpart-1.0);//pow(1.0-abs(2.0*xpart-1.0),0.5);
+	//
+	float timeSpeed = 0.5;
+	float realTime = timeSpeed*time;
+	//
+	vec2 coordScaled = 0.01*fragCoord - 0.02*vec2(offset.x,0.0);
+	vec3 position = vec3(coordScaled,0.0) + vec3(1223.0,6434.0,8425.0);
+	vec3 flow = vec3(4.1*(0.5-xpart)*pow(ypartClippedn,4.0),-2.0*xfuel*pow(ypartClippedn,64.0),0.0);
+	vec3 timing = realTime*vec3(0.0,-1.7,1.1) + flow;
+	//
+	vec3 displacePos = vec3(1.0,0.5,1.0)*2.4*position+realTime*vec3(0.01,-0.7,1.3);
+	vec3 displace3 = vec3(noiseStackUV(displacePos,2,0.4,0.1),0.0);
+	//
+	vec3 noiseCoord = (vec3(2.0,1.0,1.0)*position+timing+0.4*displace3)/1.0;
+	float noise = noiseStack(noiseCoord,3,0.4);
+	//
+	float flames = pow(ypartClipped,0.3*xfuel)*pow(noise,0.3*xfuel);
+	//
+	float f = ypartClippedFalloff*pow(1.0-flames*flames*flames,8.0);
+	float fff = f*f*f;
+	vec3 fire =1.5*vec3(f, fff, fff*fff);
+	//
+	// smoke
+	float smokeNoise = 0.5+snoise(0.4*position+timing*vec3(1.0,1.0,0.2))/2.0;
+	vec3 smoke = vec3(0.3*pow(xfuel,3.0)*pow(ypart,2.0)*(smokeNoise+0.4*(1.0-noise)));
+	//
+	// sparks
+	float sparkGridSize = 30.0;
+	vec2 sparkCoord = fragCoord - vec2(2.0*offset.x,190.0*realTime);
+	sparkCoord -= 30.0*noiseStackUV(0.01*vec3(sparkCoord,30.0*time),1,0.4,0.1);
+	sparkCoord += 100.0*flow.xy;
+	if (mod(sparkCoord.y/sparkGridSize,2.0)<1.0) sparkCoord.x += 0.5*sparkGridSize;
+	vec2 sparkGridIndex = vec2(floor(sparkCoord/sparkGridSize));
+	float sparkRandom = prng(sparkGridIndex);
+	float sparkLife = min(10.0*(1.0-min((sparkGridIndex.y+(190.0*realTime/sparkGridSize))/(24.0-20.0*sparkRandom),1.0)),1.0);
+	vec3 sparks = vec3(0.0);
+	if (sparkLife>0.0) {
+		float sparkSize = xfuel*xfuel*sparkRandom*0.08;
+		float sparkRadians = 999.0*sparkRandom*2.0*PI + 2.0*time;
+		vec2 sparkCircular = vec2(sin(sparkRadians),cos(sparkRadians));
+		vec2 sparkOffset = (0.5-sparkSize)*sparkGridSize*sparkCircular;
+		vec2 sparkModulus = mod(sparkCoord+sparkOffset,sparkGridSize) - 0.5*vec2(sparkGridSize);
+		float sparkLength = length(sparkModulus);
+		float sparksGray = max(0.0, 1.0 - sparkLength/(sparkSize*sparkGridSize));
+		sparks = sparkLife*sparksGray*vec3(1.0,0.3,0.0);
+	}
+	//
+	fragColor = vec4(max(fire,sparks)+smoke,1.0);
+}
+
+void main() {
+	vec4 colorx;
+	vec2 t;
+   //float t = iBlockOffset + ((gl_FragCoord.x-0.5) + (gl_FragCoord.y-0.5)*512.0)/iSampleRate;
+   vec2 uv = gl_FragCoord.xy;
+	mainImage(colorx,uv);
+	gl_FragColor = colorx;
+}
 
     
-    xp++;
-    if (xp > 3)
-    {
-    xp=0;
+  </script>
+
+  <script id="vs" type="x-shader/x-vertex">
+    attribute vec3 position;
+
+    void main(void){
+      gl_Position = vec4(position, 1.0);
     }
-    
-            shade8= palettenames1[xp][0];
-        	sat8 = palettenames2[xp][0];
-            bri8 = palettenames3[xp][0];
-         
-            shade1 = palettenames1[xp][1];
-        	sat1 = palettenames2[xp][1];
-            bri1 = palettenames3[xp][1];
-        
-        
-			shade2 = palettenames1[xp][2];
-			sat2 = palettenames2[xp][2];
-		    bri2 = palettenames3[xp][2];
-			
-			shade3 = palettenames1[xp][3];
-		    sat3 = palettenames2[xp][3];
-			bri3 =  palettenames3[xp][3];
-			
-			
-		   shade4 = palettenames1[xp][4];
-		   sat4 = palettenames2[xp][4];
-		   bri4 =   palettenames3[xp][4];	
-		
-			shade5 = palettenames1[xp][5];
-			sat5 = palettenames2[xp][5];
-			bri5 =  palettenames3[xp][5];
-			
-			
-		    shade6 = palettenames1[xp][6];
-		    sat6 = palettenames2[xp][6];
-	        bri6 =  palettenames3[xp][6];
-		  
+  </script>
 
-           shade7 = palettenames1[xp][7];
-           sat7 = palettenames2[xp][7];
-           bri7 = palettenames3[xp][7];
-                
-            shade9= palettenames1[xp][8];
-        	sat9 = palettenames2[xp][8];
-            bri9 = palettenames3[xp][8];
+  <script>
+    // WebGL initialization and shader handling
+    const vertexShaderSource = document.getElementById('vs').textContent.trim();
+    const fragmentShaderSource = document.getElementById('fs').textContent.trim();
+
+    let canvas = document.getElementById('canvas');
+    let gl = canvas.getContext('webgl');
+
+    if (!gl) {
+      console.error('WebGL not supported');
+    }
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    // Create vertex shader
+    let vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, vertexShaderSource);
+    gl.compileShader(vertexShader);
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+      console.error('Vertex shader compilation error:', gl.getShaderInfoLog(vertexShader));
+    }
+
+    // Create fragment shader
+    let fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader, fragmentShaderSource);
+    gl.compileShader(fragmentShader);
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+      console.error('Fragment shader compilation error:', gl.getShaderInfoLog(fragmentShader));
+    }
+
+    // Create shader program
+    let shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+    gl.useProgram(shaderProgram);
+
+    // Define vertex data
+    let vertices = [
+      -1.0, -1.0, 0.0,
+       1.0, -1.0, 0.0,
+      -1.0,  1.0, 0.0,
+       1.0,  1.0, 0.0,
+    ];
+
+    // Create vertex buffer
+    let vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    // Get attribute location and enable vertex attributes
+    let positionAttributeLocation = gl.getAttribLocation(shaderProgram, 'position');
+    gl.enableVertexAttribArray(positionAttributeLocation);
+    gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
+
+    // Set uniform variables
+    let resolutionUniformLocation = gl.getUniformLocation(shaderProgram, 'resolution');
+    let mouseUniformLocation = gl.getUniformLocation(shaderProgram, 'mouse');
+    let timeUniformLocation = gl.getUniformLocation(shaderProgram, 'time');
+
+    function animate(timestamp) {
+      resizeCanvas(); // Ensure canvas size matches window size
+
+      gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
+      gl.uniform2f(mouseUniformLocation, 0.5, 0.5); // Example mouse position
+      gl.uniform1f(timeUniformLocation, timestamp * 0.001); // Time in seconds
+
+      gl.clearColor(0.0, 0.0, 0.0, 1.0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+      requestAnimationFrame(animate);
+    }
+
+    animate(0); // Start animation loop
+  </script>
+  <script>
+      
+  /**
+ * Referenced / https://wgld.org/d/glsl/g001.html
+ * Referenced / https://thebookofshaders.com
+ */
+
+// variable for global
+let c, // canvas
+    cw, ch, // window size
+    mx, my, // mouse
+    gl, // context
+    uniLocation, // for shader
+    run, // not used
+    eCheck, // not used
+    startTime, time, tempTime; // times
+
+/**
+ * Make canvas
+ */
+const createCanvas = () => {
+  const b = document.getElementsByTagName('body')[0];
+  const c = document.createElement('canvas');
+  c.setAttribute('id', 'canvas');
+  c.style.position = 'fixed';
+  c.style.display = 'block';
+  c.style.zIndex = '-1';
+  c.style.top = '0';
+  c.style.left = '0';
+  c.style.width = '100%';
+  c.style.height = '100%';
+  c.style.background = 'black';
+  b.appendChild(c);
 };
 
-xpi();
+/**
+ * Check event
+ * @params {Object} e - check event
+ */
+const checkChange = (e) => {
+  run = e.currentTarget.checked;
+  if(run){
+    startTime = new Date().getTime();
+    render();
+  }else{
+    tempTime += time;
+  }
+};
 
+/**
+ * Mouse event
+ * @params {Object} e - mouse event
+ */
+const mouseMove = (e) => {
+  mx = e.clientX / cw;
+  my = e.clientY / ch;
+};
 
+/**
+ * Resize window
+ */
+const resizeWindow = () => {
+  cw = c.width = window.innerWidth;
+  ch = c.height = window.innerHeight;
+  init(); 
+};
 
+/**
+ * Rendering function
+ */
+const render = () => {
+  // run?
+  if (!run) return;
+  // time
+  time = (new Date().getTime() - startTime) * 0.001;
+  // clear color
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  // uniforms
+  gl.uniform1f(uniLocation[0], time);
+  gl.uniform2fv(uniLocation[1], [mx, my]);
+  gl.uniform2fv(uniLocation[2], [cw, ch]);
+  // draw
+  gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+  gl.flush();
+  // recur
+  requestAnimationFrame(render);
+};
 
+/**
+ * Create shader
+ * @params {String} id - element id
+ * @return {Object} shader - shader object
+ */
+const create_shader = (id) => {
+  let shader;
+  // get reference tag
+  const scriptElement = document.getElementById(id);
+  // if not exsist return
+  if (!scriptElement) return;
+  // check script attribute
+  switch (scriptElement.type) {
+    // vertex shader
+    case 'x-shader/x-vertex':
+      shader = gl.createShader(gl.VERTEX_SHADER);
+      break;
+    // fragment shader
+    case 'x-shader/x-fragment':
+      shader = gl.createShader(gl.FRAGMENT_SHADER);
+      break;
+    default :
+      return;
+  }
+  // assign source to shader
+  gl.shaderSource(shader, scriptElement.text);
+  // compile shader
+  gl.compileShader(shader);
+  // check shader was compiled?
+  if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 
+    return shader;
+  } else {
+    console.log(gl.getShaderInfoLog(shader));
+  }
+};
 
+/**
+ * Create program object and link shader function
+ * @param {String} vs - element name
+ * @param {String} fs - element name
+ * @return {object} program - return program object
+ */
+const create_program = (vs, fs) => {
+  let program;
+  // create program object
+  program = gl.createProgram();
+  // attach shader program object
+  gl.attachShader(program, vs);
+  gl.attachShader(program, fs);
+  // link shader
+  gl.linkProgram(program);
+  // check shader link
+  if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    // if success enable program
+    gl.useProgram(program);
 
-</script>
+    return program;
+  } else {
 
-<script>
+    return null;
+  }
+};
 
-frame();
-</script>
-<script>
+/**
+ * Create vbo function
+ * @param {Array} - Array in position
+ * @return {Object} - vertex buffer object 
+ */
+const create_vbo = (data) => {
+  //create buffer object
+  const vbo = gl.createBuffer();
+  // bind buffer
+  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+  // set data to buffer
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+  // invalidata buffer
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  
+  return vbo;
+};
+
+/**
+ * Create index buffer object function
+ * @param {Array} data - Array in index
+ * @return {Object} ibo - index buffer object
+ */
+const create_ibo = (data) => {
+  // create buffer object
+  const ibo = gl.createBuffer();
+  // bind buffer
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+  // set data to buffer
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Int16Array(data), gl.STATIC_DRAW);
+  // invalidate buffer
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+  return ibo;
+};
+
+/**
+ * Init canvas
+ */
+const init = () => {
+  time = 0.0;
+  tempTime = 0.0;
+  uniLocation = new Array();
+  
+  // get element
+  c = document.getElementById('canvas');
+  //eCheck = document.getElementById('check');
+
+  // canvas size
+  cw = c.width = window.innerWidth;
+  ch = c.height = window.innerHeight;
+
+  // get webgl context
+  gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+  
+  // set viewport
+  gl.viewport(0, 0, cw, ch);
+  
+  // init shader
+  const prg = create_program(create_shader('vs'), create_shader('fs'));
+  run = (prg != null); if(!run){eCheck.checked = false;}
+  uniLocation[0] = gl.getUniformLocation(prg, 'time');
+  uniLocation[1] = gl.getUniformLocation(prg, 'mouse');
+  uniLocation[2] = gl.getUniformLocation(prg, 'resolution');
+
+  // init vertex
+  const position = [
+    -1.0,  1.0,  0.0,
+    1.0,  1.0,  0.0,
+    -1.0, -1.0,  0.0,
+    1.0, -1.0,  0.0
+  ];
+  const index = [
+    0, 2, 1,
+    1, 2, 3
+  ];
+
+  const vPosition = create_vbo(position);
+  const vIndex = create_ibo(index);
+  const vAttLocation = gl.getAttribLocation(prg, 'position');
+  gl.bindBuffer(gl.ARRAY_BUFFER, vPosition);
+  gl.enableVertexAttribArray(vAttLocation);
+  gl.vertexAttribPointer(vAttLocation, 3, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vIndex);
+
+  // etc init
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  mx = 0.5;
+  my = 0.5;
+  startTime = new Date().getTime();
+};
+
+window.addEventListener('load', () => {
+  createCanvas();
+  init();
+  render();
+  
+  // event
+  c.addEventListener('mousemove', mouseMove, false);
+  //eCheck.addEventListener('change', checkChange, false);
+  window.addEventListener('resize', resizeWindow, false);
+}, false);    
+      
+  </script>
+  <script>
 
 const overdriveproc =`
 
