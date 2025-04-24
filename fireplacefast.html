@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shader Animation</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #000;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script id="fs" type="x-shader/x-fragment">
+   #ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+uniform vec2 resolution;
+uniform float time;
+uniform vec4 mouse;
+uniform vec4 date;
+
+
+/*uniform vec3      resolution;           // viewport resolution (in pixels)
+*/
+uniform float     iTime;                 // shader playback time (in seconds)
+uniform float     iTimeDelta;            // render time (in seconds)
+uniform float     iFrameRate;            // shader frame rate
+uniform int       iFrame;                // shader playback frame
+uniform float     iChannelTime[4];       // channel playback time (in seconds)
+uniform vec3      iChannelResolution[4]; // channel resolution (in pixels)
+       // mouse pixel coords. xy: current (if MLB down), zw: click
+uniform sampler2D iChannel0, iChannel1, iChannel2, iChannel3;   // input channel. XX = 2D/Cube
+               // (year, month, day, time in seconds)
+uniform float     iSampleRate;           // sound sample rate (i.e., 44100)
+                
+/*
+ * Fast FBM Fire
+ * Copyright (C) 2023 NR4 <nr4@z10.info>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ 
+const vec3 c = vec3(1, 0, -1);
+const mat2 m = .4 * mat2(4, 3, -3, 4);
+
+// Created by David Hoskins and licensed under MIT.
+// See https://www.shadertoy.com/view/4djSRW.
+float hash12(vec2 p)
+{
+	vec3 p3  = fract(vec3(p.xyx) * .1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract(dot(p3.xy, p3.zz));
+}
+
+float lfnoise(vec2 t)
+{
+    vec2 i = floor(t);
+    t = c.xx * smoothstep(0., 1., fract(t));
+    vec2 v1 = 2. * mix(vec2(hash12(i), hash12(i + c.xy)), vec2(hash12(i + c.yx), hash12(i + c.xx)), t.y) - 1.;
+    return mix(v1.x, v1.y, t.x);
+}
+
+float fbm(vec2 uv)
+{
+    vec2 uv0 = uv;
+    uv = uv * vec2(5., 2.) - vec2(-2., -.25) - 3.1 * iTime - time * c.yx;
+	float f = 1.,
+        a = .5,
+        c = 2.5;
+	
+    for(int i = 0; i < 5; ++i) {
+        uv.x -= .15 * clamp(1. - pow(uv0.y, 4.), 0., 1.) * lfnoise(c * (uv + float(i) * .612 + iTime - time));
+        c *= 2.;
+        f += a * lfnoise(uv + float(i) * .415);
+        a /= 2.;
+        uv *= m;
+    }
+    return f / 2.;
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    vec2 uv = fragCoord.xy / resolution.xy;
+    fragColor = vec4(clamp(1.5 * pow(clamp(pow(fbm(uv), 1. + 4. * clamp(uv.y * uv.y, 0., 1.)) * 1.5, 0., 1.) * c.xxx, vec3(1, 3, 6)), 0., 1.), 1.);
+}
+
+void main() {
+	vec4 fragment_color;
+	mainImage(fragment_color, gl_FragCoord.xy);
+	gl_FragColor = fragment_color;
+}
+
+
+    
+  </script>
+
+  <script id="vs" type="x-shader/x-vertex">
+    attribute vec3 position;
+
+    void main(void){
+      gl_Position = vec4(position, 1.0);
+    }
+  </script>
+
+  <script>
+    // WebGL initialization and shader handling
+    const vertexShaderSource = document.getElementById('vs').textContent.trim();
+    const fragmentShaderSource = document.getElementById('fs').textContent.trim();
+
+    let canvas = document.getElementById('canvas');
+    let gl = canvas.getContext('webgl');
+
+    if (!gl) {
+      console.error('WebGL not supported');
+    }
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    // Create vertex shader
+    let vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, vertexShaderSource);
+    gl.compileShader(vertexShader);
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+      console.error('Vertex shader compilation error:', gl.getShaderInfoLog(vertexShader));
+    }
+
+    // Create fragment shader
+    let fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader, fragmentShaderSource);
+    gl.compileShader(fragmentShader);
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+      console.error('Fragment shader compilation error:', gl.getShaderInfoLog(fragmentShader));
+    }
+
+    // Create shader program
+    let shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+    gl.useProgram(shaderProgram);
+
+    // Define vertex data
+    let vertices = [
+      -1.0, -1.0, 0.0,
+       1.0, -1.0, 0.0,
+      -1.0,  1.0, 0.0,
+       1.0,  1.0, 0.0,
+    ];
+
+    // Create vertex buffer
+    let vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    // Get attribute location and enable vertex attributes
+    let positionAttributeLocation = gl.getAttribLocation(shaderProgram, 'position');
+    gl.enableVertexAttribArray(positionAttributeLocation);
+    gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
+
+    // Set uniform variables
+    let resolutionUniformLocation = gl.getUniformLocation(shaderProgram, 'resolution');
+    let mouseUniformLocation = gl.getUniformLocation(shaderProgram, 'mouse');
+    let timeUniformLocation = gl.getUniformLocation(shaderProgram, 'time');
+
+    function animate(timestamp) {
+      resizeCanvas(); // Ensure canvas size matches window size
+
+      gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
+      gl.uniform2f(mouseUniformLocation, 0.5, 0.5); // Example mouse position
+      gl.uniform1f(timeUniformLocation, timestamp * 0.001); // Time in seconds
+
+      gl.clearColor(0.0, 0.0, 0.0, 1.0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+      requestAnimationFrame(animate);
+    }
+
+    animate(0); // Start animation loop
+  </script>
+  <script>
+      
+  /**
+ * Referenced / https://wgld.org/d/glsl/g001.html
+ * Referenced / https://thebookofshaders.com
+ */
+
+// variable for global
+let c, // canvas
+    cw, ch, // window size
+    mx, my, // mouse
+    gl, // context
+    uniLocation, // for shader
+    run, // not used
+    eCheck, // not used
+    startTime, time, tempTime; // times
+
+/**
+ * Make canvas
+ */
+const createCanvas = () => {
+  const b = document.getElementsByTagName('body')[0];
+  const c = document.createElement('canvas');
+  c.setAttribute('id', 'canvas');
+  c.style.position = 'fixed';
+  c.style.display = 'block';
+  c.style.zIndex = '-1';
+  c.style.top = '0';
+  c.style.left = '0';
+  c.style.width = '100%';
+  c.style.height = '100%';
+  c.style.background = 'black';
+  b.appendChild(c);
+};
+
+/**
+ * Check event
+ * @params {Object} e - check event
+ */
+const checkChange = (e) => {
+  run = e.currentTarget.checked;
+  if(run){
+    startTime = new Date().getTime();
+    render();
+  }else{
+    tempTime += time;
+  }
+};
+
+/**
+ * Mouse event
+ * @params {Object} e - mouse event
+ */
+const mouseMove = (e) => {
+  mx = e.clientX / cw;
+  my = e.clientY / ch;
+};
+
+/**
+ * Resize window
+ */
+const resizeWindow = () => {
+  cw = c.width = window.innerWidth;
+  ch = c.height = window.innerHeight;
+  init(); 
+};
+
+/**
+ * Rendering function
+ */
+const render = () => {
+  // run?
+  if (!run) return;
+  // time
+  time = (new Date().getTime() - startTime) * 0.001;
+  // clear color
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  // uniforms
+  gl.uniform1f(uniLocation[0], time);
+  gl.uniform2fv(uniLocation[1], [mx, my]);
+  gl.uniform2fv(uniLocation[2], [cw, ch]);
+  // draw
+  gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+  gl.flush();
+  // recur
+  requestAnimationFrame(render);
+};
+
+/**
+ * Create shader
+ * @params {String} id - element id
+ * @return {Object} shader - shader object
+ */
+const create_shader = (id) => {
+  let shader;
+  // get reference tag
+  const scriptElement = document.getElementById(id);
+  // if not exsist return
+  if (!scriptElement) return;
+  // check script attribute
+  switch (scriptElement.type) {
+    // vertex shader
+    case 'x-shader/x-vertex':
+      shader = gl.createShader(gl.VERTEX_SHADER);
+      break;
+    // fragment shader
+    case 'x-shader/x-fragment':
+      shader = gl.createShader(gl.FRAGMENT_SHADER);
+      break;
+    default :
+      return;
+  }
+  // assign source to shader
+  gl.shaderSource(shader, scriptElement.text);
+  // compile shader
+  gl.compileShader(shader);
+  // check shader was compiled?
+  if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+
+    return shader;
+  } else {
+    console.log(gl.getShaderInfoLog(shader));
+  }
+};
+
+/**
+ * Create program object and link shader function
+ * @param {String} vs - element name
+ * @param {String} fs - element name
+ * @return {object} program - return program object
+ */
+const create_program = (vs, fs) => {
+  let program;
+  // create program object
+  program = gl.createProgram();
+  // attach shader program object
+  gl.attachShader(program, vs);
+  gl.attachShader(program, fs);
+  // link shader
+  gl.linkProgram(program);
+  // check shader link
+  if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    // if success enable program
+    gl.useProgram(program);
+
+    return program;
+  } else {
+
+    return null;
+  }
+};
+
+/**
+ * Create vbo function
+ * @param {Array} - Array in position
+ * @return {Object} - vertex buffer object 
+ */
+const create_vbo = (data) => {
+  //create buffer object
+  const vbo = gl.createBuffer();
+  // bind buffer
+  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+  // set data to buffer
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+  // invalidata buffer
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  
+  return vbo;
+};
+
+/**
+ * Create index buffer object function
+ * @param {Array} data - Array in index
+ * @return {Object} ibo - index buffer object
+ */
+const create_ibo = (data) => {
+  // create buffer object
+  const ibo = gl.createBuffer();
+  // bind buffer
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+  // set data to buffer
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Int16Array(data), gl.STATIC_DRAW);
+  // invalidate buffer
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+  return ibo;
+};
+
+/**
+ * Init canvas
+ */
+const init = () => {
+  time = 0.0;
+  tempTime = 0.0;
+  uniLocation = new Array();
+  
+  // get element
+  c = document.getElementById('canvas');
+  //eCheck = document.getElementById('check');
+
+  // canvas size
+  cw = c.width = window.innerWidth;
+  ch = c.height = window.innerHeight;
+
+  // get webgl context
+  gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+  
+  // set viewport
+  gl.viewport(0, 0, cw, ch);
+  
+  // init shader
+  const prg = create_program(create_shader('vs'), create_shader('fs'));
+  run = (prg != null); if(!run){eCheck.checked = false;}
+  uniLocation[0] = gl.getUniformLocation(prg, 'time');
+  uniLocation[1] = gl.getUniformLocation(prg, 'mouse');
+  uniLocation[2] = gl.getUniformLocation(prg, 'resolution');
+
+  // init vertex
+  const position = [
+    -1.0,  1.0,  0.0,
+    1.0,  1.0,  0.0,
+    -1.0, -1.0,  0.0,
+    1.0, -1.0,  0.0
+  ];
+  const index = [
+    0, 2, 1,
+    1, 2, 3
+  ];
+
+  const vPosition = create_vbo(position);
+  const vIndex = create_ibo(index);
+  const vAttLocation = gl.getAttribLocation(prg, 'position');
+  gl.bindBuffer(gl.ARRAY_BUFFER, vPosition);
+  gl.enableVertexAttribArray(vAttLocation);
+  gl.vertexAttribPointer(vAttLocation, 3, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vIndex);
+
+  // etc init
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  mx = 0.5;
+  my = 0.5;
+  startTime = new Date().getTime();
+};
+
+window.addEventListener('load', () => {
+  createCanvas();
+  init();
+  render();
+  
+  // event
+  c.addEventListener('mousemove', mouseMove, false);
+  //eCheck.addEventListener('change', checkChange, false);
+  window.addEventListener('resize', resizeWindow, false);
+}, false);    
+      
+  </script>
+  <script>
+
+const overdriveproc =`
+
+
+
+
+// TODO: HOW CAN THE AUDIO WORKLET BE AWARE OF SAMPLE RATE? currently using sampleRate, but not sure it knows what that is!
+// TODO: SENDING ONLY FIRST INDEX OF PARAMETER ARRAY BECAUSE DON'T REALLY KNOW HOW TO IMPLEMENT IT! 
+
+const TWO_PI = 6.28318530717958647693;
+const map = (value, in_min, in_max, out_min, out_max) => (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+let currentNoise = 0;
+const generateNewNoise = () => currentNoise = Math.random() * 2 - 1;
+
+class Biquad
+{
+  constructor(type = "lowpass")
+  {
+    this.type = type;
+    this.a0 = 1.0;
+    this.a1 = 0.0;
+    this.a2 = 0.0;
+    this.b1 = 0.0;
+    this.b2 = 0.0;
+    this.Fc = 0.50;
+    this.Q = 0.707;
+    this.peakGain = 0.0;
+    this.z1 = 0.0;
+    this.z2 = 0.0;
+    this.calcBiquad();
+}
+
+setFreq(freq)
+{
+    this.Fc = freq;
+    this.calcBiquad();
+}
+
+setBiquad(type, freq, Q, peakGainDB)
+{
+    this.type = type;
+    this.Fc = freq;
+    this.Q = Q;
+    this.peakGain = peakGainDB;
+    this.calcBiquad();
+}
+
+calcBiquad()
+{
+    this.norm;
+    this.V = Math.pow(10, Math.abs(this.peakGain) / 20.0);
+    this.K = Math.tan(Math.PI * this.Fc);
+    switch (this.type) {
+        case "lowpass":
+        this.norm = 1 / (1 + this.K / this.Q + this.K * this.K);
+        this.a0 = this.K * this.K * this.norm;
+        this.a1 = 2 * this.a0;
+        this.a2 = this.a0;
+        this.b1 = 2 * (this.K * this.K - 1) * this.norm;
+        this.b2 = (1 - this.K / this.Q + this.K * this.K) * this.norm;
+        break;
+
+        case "highpass":
+        this.norm = 1 / (1 + this.K / this.Q + this.K * this.K);
+        this.a0 = 1 * this.norm;
+        this.a1 = -2 * this.a0;
+        this.a2 = this.a0;
+        this.b1 = 2 * (this.K * this.K - 1) * this.norm;
+        this.b2 = (1 - this.K / this.Q + this.K * this.K) * this.norm;
+        break;
+
+        case "bandpass":
+        this.norm = 1 / (1 + this.K / this.Q + this.K * this.K);
+        this.a0 = this.K / this.Q * this.norm;
+        this.a1 = 0;
+        this.a2 = -this.a0;
+        this.b1 = 2 * (this.K * this.K - 1) * this.norm;
+        this.b2 = (1 - this.K / this.Q + this.K * this.K) * this.norm;
+        break;
+
+        case "notch":
+        this.norm = 1 / (1 + this.K / this.Q + this.K * this.K);
+        this.a0 = (1 + this.K * this.K) * this.norm;
+        this.a1 = 2 * (this.K * this.K - 1) * this.norm;
+        this.a2 = this.a0;
+        this.b1 = this.a1;
+        this.b2 = (1 - this.K / this.Q + this.K * this.K) * this.norm;
+        break;
+
+        case "peak":
+            if (this.peakGain >= 0) {    // boost
+                this.norm = 1 / (1 + 1/this.Q * this.K + this.K * this.K);
+                this.a0 = (1 + this.V/this.Q * this.K + this.K * this.K) * this.norm;
+                this.a1 = 2 * (this.K * this.K - 1) * this.norm;
+                this.a2 = (1 - this.V/this.Q * this.K + this.K * this.K) * this.norm;
+                this.b1 = this.a1;
+                this.b2 = (1 - 1/this.Q * this.K + this.K * this.K) * this.norm;
+            }
+            else {    // cut
+                this.norm = 1 / (1 + this.V/this.Q * this.K + this.K * this.K);
+                this.a0 = (1 + 1/this.Q * this.K + this.K * this.K) * this.norm;
+                this.a1 = 2 * (this.K * this.K - 1) * this.norm;
+                this.a2 = (1 - 1/this.Q * this.K + this.K * this.K) * this.norm;
+                this.b1 = this.a1;
+                this.b2 = (1 - this.V/this.Q * this.K + this.K * this.K) * this.norm;
+            }
+            break;
+            case "lowshelf":
+            if (this.peakGain >= 0) {    // boost
+                this.norm = 1 / (1 + Math.sqrt(2) * this.K + this.K * this.K);
+                this.a0 = (1 + Math.sqrt(2*this.V) * this.K + this.V * this.K * this.K) * this.norm;
+                this.a1 = 2 * (this.V * this.K * this.K - 1) * this.norm;
+                this.a2 = (1 - Math.sqrt(2*this.V) * this.K + this.V * this.K * this.K) * this.norm;
+                this.b1 = 2 * (this.K * this.K - 1) * this.norm;
+                this.b2 = (1 - Math.sqrt(2) * this.K + this.K * this.K) * this.norm;
+            }
+            else {    // cut
+                this.norm = 1 / (1 + Math.sqrt(2*this.V) * this.K + this.V * this.K * this.K);
+                this.a0 = (1 + Math.sqrt(2) * this.K + this.K * this.K) * this.norm;
+                this.a1 = 2 * (this.K * this.K - 1) * this.norm;
+                this.a2 = (1 - Math.sqrt(2) * this.K + this.K * this.K) * this.norm;
+                this.b1 = 2 * (this.V * this.K * this.K - 1) * this.norm;
+                this.b2 = (1 - Math.sqrt(2*this.V) * this.K + this.V * this.K * this.K) * this.norm;
+            }
+            break;
+            case "highshelf":
+            if (this.peakGain >= 0) {    // boost
+                this.norm = 1 / (1 + Math.sqrt(2) * this.K + this.K * this.K);
+                this.a0 = (this.V + Math.sqrt(2*this.V) * this.K + this.K * this.K) * this.norm;
+                this.a1 = 2 * (this.K * this.K - this.V) * this.norm;
+                this.a2 = (this.V - Math.sqrt(2*this.V) * this.K + this.K * this.K) * this.norm;
+                this.b1 = 2 * (this.K * this.K - 1) * this.norm;
+                this.b2 = (1 - Math.sqrt(2) * this.K + this.K * this.K) * this.norm;
+            }
+            else {    // cut
+                this.norm = 1 / (this.V + Math.sqrt(2*this.V) * this.K + this.K * this.K);
+                this.a0 = (1 + Math.sqrt(2) * this.K + this.K * this.K) * this.norm;
+                this.a1 = 2 * (this.K * this.K - 1) * this.norm;
+                this.a2 = (1 - Math.sqrt(2) * this.K + this.K * this.K) * this.norm;
+                this.b1 = 2 * (this.K * this.K - this.V) * this.norm;
+                this.b2 = (this.V - Math.sqrt(2*this.V) * this.K + this.K * this.K) * this.norm;
+            }
+            break;
+        }
+    }
+
+    process(inValue) {
+        let outValue = inValue * this.a0 + this.z1;
+        this.z1 = inValue * this.a1 + this.z2 - this.b1 * outValue;
+        this.z2 = inValue * this.a2 - this.b2 * outValue;
+        return outValue;
+    }
+}
+
+class Glide
+{
+  constructor()
+  {
+    this.a = 0.0;
+    this.b = 0.0;
+    this.z = 0.0;
+}
+
+init(startValue, glideTimeMS, sampleRate)
+{
+    this.z = startValue;
+    // set coefficients
+    this.a = Math.exp(-TWO_PI / (glideTimeMS * 0.001 * sampleRate));
+    this.b = 1.0 - this.a;
+} 
+
+process(targetValue)
+{
+    this.z = (targetValue * this.b) + (this.z * this.a);
+    return this.z;
+}
+}
+
+class Roaring
+{
+  constructor()
+  {
+    this.gain = 1;
+    this.noiseSeed = 1;
+
+    this.bandPass = new Biquad();
+    this.lop = new Biquad();
+    this.lop2 = new Biquad();
+    this.hip = new Biquad();
+
+    this.bandPass.setBiquad("bandpass", 30 / sampleRate, 1.5, 2);
+    this.lop.setBiquad("lowpass", 800 / sampleRate, 0.707, 2);
+    this.lop2.setBiquad("lowpass", 2875 / sampleRate, 0.707, 2);
+    this.hip.setBiquad("highpass", 30 / sampleRate, 0.707, 2);
+}
+
+setSize(value)
+    { // value between 0 - 1
+        // this.gain = Math.pow(value, 2.0);
+        this.boomAmount = map(value, 0.0, 1.0, 100.0, 30.0);
+        this.hip.setFreq(this.boomAmount/sampleRate);
+        this.bandPass.setFreq(this.boomAmount/sampleRate);
+        this.lopFreq = map(Math.pow(value, 2.5), 0.0, 1.0, 10.0, 800.0);
+        this.lop.setFreq(this.lopFreq/sampleRate);
+        this.noiseSeed = map(value, 0.0, 1.0, 0.02, 1.0);
+    }
+
+  generate(size = 1) // generate one sample of data
+  {
+    // adjust to size
+    this.boomAmount = map(size, 0.0, 1.0, 100.0, 30.0);
+        this.hip.setFreq(this.boomAmount/sampleRate);
+        this.bandPass.setFreq(this.boomAmount/sampleRate);
+        this.lopFreq = map(Math.pow(size, 2.5), 0.0, 1.0, 10.0, 800.0);
+        this.lop.setFreq(this.lopFreq/sampleRate);
+        this.noiseSeed = map(size, 0.0, 1.0, 0.02, 1.0);
+
+    // noise1 wants to be EITHER +1 or -1
+    this.noise1 = (Math.random() >= 0.5) * 2 - 1;
+    this.noise2 = currentNoise;
+
+    this.noise2 *= this.noiseSeed;
+
+    this.noise2 = this.lop.process(this.noise2);
+
+    this.noiseCombined = (this.noise1 * 0.5) * (this.noise2 * 0.5);1
+    this.noiseCombined = this.bandPass.process(this.noiseCombined) * 40;
+    this.noiseCombined = this.lop2.process(this.noiseCombined);
+
+    this.output = this.hip.process(this.noiseCombined) * this.gain;
+
+    return this.output;
+}
+
+}
+
+class Hissing
+{
+  constructor()
+  {
+    this.gain = 1;
+    this.noiseSeed = 1;
+
+    this.lop = new Biquad();
+    this.shelf = new Biquad();
+
+    this.lop.setBiquad("lowpass", 100 / sampleRate, 2, 2);
+    this.shelf.setBiquad("highshelf", 2000 / sampleRate, 0, 15);
+}
+
+setSize(value)
+    { // value between 0 - 1
+       // this.gain = Math.pow(value, 2.7); // was 1.2
+        this.lopFreq = map(value, 0.0, 1.0, 10, 100.0);
+        this.lop.setFreq(this.lopFreq/ sampleRate);
+        this.noiseSeed = map(value, 0.0, 1.0, 0.02, 1.0);
+    }
+
+  generate(size = 1) // generate one sample of hiss
+  {
+        // adjust to size
+        this.lopFreq = map(size, 0.0, 1.0, 10, 100.0);
+        this.lop.setFreq(this.lopFreq/ sampleRate);
+        this.noiseSeed = map(size, 0.0, 1.0, 0.02, 1.0);
+
+      // noise2 wants to be EITHER +1 or -1
+      this.noise1 = currentNoise;
+      this.noise2 = (Math.random() >= 0.5) * 2 - 1;
+
+      this.noise2 *= this.noiseSeed;
+
+      // filter noise2
+      this.noise2 = this.lop.process(this.noise2);
+
+      this.noise2 * this.noise2 * this.noise2 * this.noise2;
+
+          // multiply and set final volume
+          this.output = (this.shelf.process(this.noise1 * this.noise2) * 0.04) * this.gain; // 0.04 used to be 0.08
+
+          return this.output;
+      }
+
+  }
+
+  class Crackling
+  {
+      constructor()
+      {
+        this.gain = 1;
+        this.crackleAmount = 0.99975;
+        this.env = new Glide();
+        this.bandPass = new Biquad();
+        this.lop = new Biquad();
+
+        this.bandPass.setBiquad("bandpass", 1650 / sampleRate, 1.5, 2);
+        this.lop.setBiquad("lowpass", 8200 / sampleRate, 0.707, 0);
+    }
+
+    setSize(value)
+    {
+        // this.gain = Math.pow(value, 0.5); 
+        this.crackleAmount = map(Math.pow(value, 1.5), 0.0, 1.0, 1.0, 0.99975);
+    }
+
+  generate(size = 1) // generate one sample of crackle
+  {
+    // THIS WILL GENERATE MONO CRACKLES, BUT REALLY WE WANT TO THINK ABOUT MAKING LIKE A PARTICLE GENERATOR CLASS
+    // THAT SPITS OUT A RANDOM CRACKLE IN A RANDOM PAN POSITION AT A RANDOM TIME
+
+        // adjust to size
+        this.crackleAmount = map(Math.pow(size, 1.5), 0.0, 1.0, 1.0, 0.99975);
+
+        // calc per sample noise
+        this.noise = currentNoise;
+
+        if (this.noise > this.crackleAmount)
+        {
+          this.randomEnvTime = (Math.random() * 30) + 60;
+          this.randomBandPassFreq = map(Math.random(), 0.0, 1.0, 1500.0, 16500.0);
+          this.bandPass.setFreq(this.randomBandPassFreq / sampleRate);
+          this.env.init(1, this.randomEnvTime, sampleRate);
+      }
+
+      this.noise = this.bandPass.process(this.noise);
+
+      this.noise *= this.env.process(0);
+
+        // take the high end off, to make it not sound like rain splatter
+        this.noise = this.lop.process(this.noise);
+
+        this.noise *= 0.1 * this.gain; // was also a '* 0.1' before
+
+        return this.noise;
+    }
+
+}
+
+class FireNoiseGenerator extends AudioWorkletProcessor
+{
+
+  constructor()
+  {
+    super();
+    this.roaring = new Roaring();
+    this.hissing = new Hissing();
+    this.crackling = new Crackling();
+}   
+
+    static get parameterDescriptors()
+    {
+        return [{ name: 'size', defaultValue: 1}];
+    }
+
+
+process(inputs, outputs, parameters) {
+    // INFO: outputs[devices][channel][frame]
+
+    // grab parameter data
+    const size = parameters.size;
+
+    // loop through every frame
+    for (let frame = 0; frame < outputs[0][0].length; ++frame)
+    {
+      // generate one random sample data and use that as the base for all DSP in this block
+      // the three DSP algorithms will then just call on that variable rather than generating a new one (or more) every sample!
+      generateNewNoise();
+
+      let roar = this.roaring.generate(size[0]);
+      let hiss = this.hissing.generate(size[0]);
+      let crackle = this.crackling.generate(size[0]);
+
+      let data = crackle;
+
+      // write out data
+      for (let channel = 0; channel < outputs[0].length; ++channel)
+      {
+        outputs[0][channel][frame] = data;
+    }
+}
+
+    // return true to keep alive
+    return true;
+}
+}
+
+
+
+registerProcessor('fire-noise-generator', FireNoiseGenerator);
+`;
+</script>
+
+<script>
+var once=0;
+
+window.addEventListener( 'click', () => { 
+  if (once == 0)
+{
+const audioContext = new AudioContext();
+  let noiseGenerator; // in the global scope for use elsewhere in the code
+
+  let isPlaying = false;
+  const startAudioWorkletSound = async (context) =>
+  {
+    isPlaying = true; // used to only have the button trigger this once
+       await context.audioWorklet.addModule('data:text/javascript,'+encodeURI(overdriveproc));
+
+    noiseGenerator = new AudioWorkletNode(context, 'fire-noise-generator');
+
+    // Create a compressor node
+    var compressor = context.createDynamicsCompressor();
+    compressor.threshold.value = -50;
+    compressor.knee.value = 40;
+    compressor.ratio.value = 20;
+    compressor.attack.value = 0.1;
+    compressor.release.value = 0.25;
+
+    let convolver = context.createConvolver();
+    convolver.buffer = impulseResponse(0.05, 2, 1);
+
+    let gainNode = context.createGain();
+    gainNode.gain.value = 0.3;
+
+    noiseGenerator.connect(gainNode).connect(compressor).connect(context.destination);
+    noiseGenerator.connect(convolver).connect(compressor);
+
+    context.resume();
+  };
+
+// create an artificial impulse response
+  function impulseResponse( duration, decay, reverse ) {
+    var sampleRate = audioContext.sampleRate;
+    var length = sampleRate * duration;
+    var impulse = audioContext.createBuffer(2, length, sampleRate);
+    var impulseL = impulse.getChannelData(0);
+    var impulseR = impulse.getChannelData(1);
+
+    if (!decay)
+        decay = 2.0;
+    for (var i = 0; i < length; i++){
+      var n = reverse ? length - i : i;
+      impulseL[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+      impulseR[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+    }
+    return impulse;
+}
+
+function setSize()
+{
+  let sizeParam = context.parameters.get('size');
+  sizeParam.value = 1;
+}
+startAudioWorkletSound(audioContext)
+once=1;
+}
+}); 
+</script>
+
+</body>
+</html>
